@@ -12,7 +12,7 @@ namespace CastForm
 
     public interface IMapperBuilder<TSource, TDestiny> : IMapperBuilder
     {
-        IMapperBuilder<TSource, TDestiny> For(Expression<TSource> source, Expression<TDestiny> destiny);
+        IMapperBuilder<TSource, TDestiny> For<TMember>(Expression<Func<TSource, TMember>> source, Expression<Func<TDestiny, TMember>> destiny);
 
         IMapperBuilder<TSource, TDestiny> Ignore<TMember>(Expression<Func<TSource, TMember>> source);
 

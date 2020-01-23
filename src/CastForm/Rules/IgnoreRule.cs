@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace CastForm.Rules
 {
@@ -12,9 +13,12 @@ namespace CastForm.Rules
             _property = property ?? throw new ArgumentNullException(nameof(property));
         }
 
-        public bool Match(PropertyInfo property)
+        public bool Match(PropertyInfo property) 
+            => property.Equals(_property);
+
+        public void Execute(ILGenerator il)
         {
-            return property.Equals(_property);
+            
         }
     }
 }

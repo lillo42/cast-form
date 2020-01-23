@@ -56,8 +56,9 @@ namespace CastForm.Generator
             foreach (var sourceProperty in sourceProperties)
             {
                 var rule = _rules.FirstOrDefault(x => x.Match(sourceProperty));
-                if (rule is IgnoreRule)
+                if (rule != null)
                 {
+                    rule.Execute(_ilGenerator);
                     continue;
                 }
 

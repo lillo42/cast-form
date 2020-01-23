@@ -37,9 +37,15 @@ namespace CastForm
             return _parent.Build();
         }
 
-        public IMapperBuilder<TSource, TDestiny> For(Expression<TSource> source, Expression<TDestiny> destiny)
+        public IMapperBuilder<TSource, TDestiny> For<TMember>(Expression<Func<TSource, TMember>> source, Expression<Func<TDestiny, TMember>> destiny)
         {
-            throw new NotImplementedException();
+            if (source.Body.NodeType != ExpressionType.MemberAccess && destiny.Body.NodeType != ExpressionType.MemberAccess)
+            {
+                throw new NotSupportedException();
+            }
+
+            _rules.Add(new ForSameTypeRule(((MemberExpression)source.Body).Member, ((MemberExpression)destiny.Body).Member));
+            return this;
         }
 
         public IMapperBuilder<TSource, TDestiny> Ignore<TMember>(Expression<Func<TSource, TMember>> source)
