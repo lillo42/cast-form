@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <Product>Cast Form</Product>
+    <NeutralLanguage>en-US</NeutralLanguage>
+
+    <PackageProjectUrl>https://github.com/lillo42/cast-form</PackageProjectUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+</Project>
