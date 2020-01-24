@@ -48,6 +48,18 @@ namespace CastForm
             return this;
         }
 
+        public IMapperBuilder<TSource, TDestiny> For<TMember>(Expression<Func<TSource, TMember>> source, Expression<Func<TDestiny, object>> destiny)
+        {
+            if (source.Body.NodeType != ExpressionType.MemberAccess && destiny.Body.NodeType != ExpressionType.MemberAccess)
+            {
+                throw new NotSupportedException();
+            }
+
+            _rules.Add(new ForDifferentTypeRule(((MemberExpression)source.Body).Member, ((MemberExpression)destiny.Body).Member));
+            return this;
+        }
+
+
         public IMapperBuilder<TSource, TDestiny> Ignore<TMember>(Expression<Func<TSource, TMember>> source)
         {
             if (source.Body.NodeType != ExpressionType.MemberAccess)

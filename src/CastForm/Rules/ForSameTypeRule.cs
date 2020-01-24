@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -15,16 +16,18 @@ namespace CastForm.Rules
             _destiny = destiny as PropertyInfo ?? throw new ArgumentNullException(nameof(destiny));
         }
 
-
         public bool Match(PropertyInfo property) 
             => _source.Equals(property);
 
-        public void Execute(ILGenerator il)
+        public void Execute(ILGenerator il, IEnumerable<LocalBuilder> local)
+            => Execute(il, _source, _destiny);
+
+        internal static void Execute(ILGenerator il, PropertyInfo source, PropertyInfo destiny)
         {
             il.Emit(OpCodes.Dup);
             il.Emit(OpCodes.Ldarg_1);
-            il.EmitCall(OpCodes.Callvirt, _source.GetMethod, null);
-            il.EmitCall(OpCodes.Callvirt, _source.SetMethod, new[] { _destiny.PropertyType });
+            il.EmitCall(OpCodes.Callvirt, source.GetMethod, null);
+            il.EmitCall(OpCodes.Callvirt, destiny.SetMethod, new[] { destiny.PropertyType });
         }
     }
 }

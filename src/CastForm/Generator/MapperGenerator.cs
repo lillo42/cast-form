@@ -51,6 +51,8 @@ namespace CastForm.Generator
             var sourceProperties = _source.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var destinyProperties = _destiny.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
+            var local = DefineLocalBuilders(sourceProperties, destinyProperties);
+
             _ilGenerator.Emit(OpCodes.Newobj, _destiny.GetConstructor(new Type[0]));
 
             foreach (var sourceProperty in sourceProperties)
@@ -58,25 +60,57 @@ namespace CastForm.Generator
                 var rule = _rules.FirstOrDefault(x => x.Match(sourceProperty));
                 if (rule != null)
                 {
-                    rule.Execute(_ilGenerator);
+                    rule.Execute(_ilGenerator, local);
                     continue;
                 }
 
-                var destinyProperty = destinyProperties.FirstOrDefault(x => x.Name == sourceProperty.Name && x.PropertyType == sourceProperty.PropertyType);
+                var destinyProperty = destinyProperties.FirstOrDefault(x => x.Name == sourceProperty.Name);
 
                 if (destinyProperty == null)
                 {
                     continue;
                 }
 
-                _ilGenerator.Emit(OpCodes.Dup);
-                _ilGenerator.Emit(OpCodes.Ldarg_1);
-                _ilGenerator.EmitCall(OpCodes.Callvirt, sourceProperty.GetMethod, null);
-                _ilGenerator.EmitCall(OpCodes.Callvirt, destinyProperty.SetMethod,
-                    new[] { destinyProperty.PropertyType });
+                if (sourceProperty.PropertyType == destinyProperty.PropertyType)
+                {
+                    ForSameTypeRule.Execute(_ilGenerator, sourceProperty, destinyProperty);
+                }
+                else
+                {
+                    ForDifferentTypeRule.Execute(_ilGenerator, local, sourceProperty, destinyProperty);
+                }
             }
 
             _ilGenerator.Emit(OpCodes.Ret);
+        }
+
+        private IEnumerable<LocalBuilder> DefineLocalBuilders(PropertyInfo[] sourceProperties, PropertyInfo[] destinyProperties)
+        {
+            var local = new List<LocalBuilder>();
+            var needLocalFields = _rules.Where(x => x is IRuleNeedLocalField).Cast<IRuleNeedLocalField>();
+            foreach (var localField in needLocalFields)
+            {
+                foreach (var field in localField.LocalField)
+                {
+                    if (local.All(x => x.LocalType != field))
+                    {
+                        local.Add(_ilGenerator.DeclareLocal(field));
+                    }
+                }
+            }
+
+            foreach (var sourceProperty in sourceProperties)
+            {
+                var shouldCreate = destinyProperties.Any(x =>
+                    x.Name == sourceProperty.Name && x.PropertyType != sourceProperty.PropertyType);
+
+                if (shouldCreate && local.All(x => x.LocalType != sourceProperty.PropertyType))
+                {
+                    local.Add(_ilGenerator.DeclareLocal(sourceProperty.PropertyType));
+                }
+            }
+
+            return local;
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using AutoFixture;
+﻿using AutoFixture;
 using FluentAssertions;
 using Xunit;
 
@@ -15,7 +14,7 @@ namespace CastForm.Test
         }
 
         [Fact]
-        public void SamePropertyName()
+        public void Map()
         {
             var builder = new MapperBuilder()
                 .AddMapper<SimpleA, SimpleB>();
@@ -26,6 +25,21 @@ namespace CastForm.Test
             var b = mapper.Map<SimpleB>(a);
             b.Should().NotBeNull();
             b.Should().BeEquivalentTo(a);
+        }
+
+        [Fact]
+        public void DifferentType()
+        {
+            var builder = new MapperBuilder()
+                .AddMapper<SimpleA, SimpleE>();
+
+            var mapper = builder.Build();
+
+            var a = _fixture.Create<SimpleA>();
+            var b = mapper.Map<SimpleE>(a);
+            b.Should().NotBeNull();
+            b.Text.Should().Be(a.Text);
+            b.Id.Should().Be(a.Id.ToString());
         }
 
 
@@ -61,6 +75,21 @@ namespace CastForm.Test
             b.Id2.Should().Be(a.Id);
         }
 
+        [Fact]
+        public void OtherType()
+        {
+            var mapper = new MapperBuilder()
+                .AddMapper<SimpleA, SimpleD>()
+                    .For(x => x.Id, x => x.Id2)
+                .Build();
+
+            var a = _fixture.Create<SimpleA>();
+            var b = mapper.Map<SimpleD>(a);
+            b.Should().NotBeNull();
+            b.Text.Should().Be(a.Text);
+            b.Id2.Should().Be(a.Id.ToString());
+        }
+
         public class SimpleA
         {
             public int Id { get; set; }
@@ -77,6 +106,20 @@ namespace CastForm.Test
         public class SimpleC
         {
             public int Id2 { get; set; }
+            public string Text { get; set; }
+        }
+
+
+        public class SimpleD
+        {
+            public string Id2 { get; set; }
+            public string Text { get; set; }
+        }
+
+
+        public class SimpleE
+        {
+            public string Id { get; set; }
             public string Text { get; set; }
         }
     }
