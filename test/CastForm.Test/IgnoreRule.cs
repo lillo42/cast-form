@@ -28,7 +28,6 @@ namespace CastForm.Test
             b.Id.Should().Be(a.Id);
             b.IsEnable.Should().Be(a.IsEnable);
             b.Value.Should().BeNullOrEmpty();
-            
         }
 
         public class SimpleA

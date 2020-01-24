@@ -27,7 +27,7 @@ namespace CastForm.Rules
             il.Emit(OpCodes.Dup);
             il.Emit(OpCodes.Ldarg_1);
             il.EmitCall(OpCodes.Callvirt, source.GetMethod, null);
-            il.EmitCall(OpCodes.Callvirt, destiny.SetMethod, new[] { destiny.PropertyType });
+            il.EmitCall(OpCodes.Callvirt, destiny.SetMethod, null);
         }
     }
 }

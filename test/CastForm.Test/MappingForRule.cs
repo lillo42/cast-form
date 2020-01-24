@@ -36,8 +36,8 @@ namespace CastForm.Test
         {
             var mapper = new MapperBuilder()
                 .AddMapper<SimpleA, SimpleC>()
-                .For(x => x.Id, x => x.Number)
-                .For(x => x.Text, x => x.Value)
+                    .For(x => x.Id, x => x.Number)
+                    .For(x => x.Text, x => x.Value)
                 .Build();
 
             var a = _fixture.Create<SimpleA>();
