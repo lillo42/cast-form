@@ -7,7 +7,7 @@ using CastForm.Rules;
 
 namespace CastForm.Generator
 {
-    internal partial class MapperGenerator
+    internal class MapperGenerator
     {
         private readonly Type _source;
         private readonly Type _destiny;

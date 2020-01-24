@@ -17,24 +17,8 @@ namespace CastForm.Rules
             _destiny = destiny as PropertyInfo ?? throw new ArgumentNullException(nameof(destiny));
         }
 
-        public IEnumerable<Type> LocalField
-        {
-            get
-            {
-                var result = new List<Type>();
+        public IEnumerable<Type> LocalField { get; } = new List<Type>();
 
-                if (_destiny.PropertyType == typeof(string))
-                {
-                    result.Add(_source.PropertyType);
-                }
-                else if(_destiny.PropertyType.IsPrimitive && _source.PropertyType.IsPrimitive)
-                {
-                    
-                }
-
-                return result;
-            }
-        }
         public bool Match(PropertyInfo property)
             => _source.Equals(property);
 
@@ -44,11 +28,7 @@ namespace CastForm.Rules
         internal static void Execute(ILGenerator il, IEnumerable<LocalBuilder> locals, PropertyInfo source,
             PropertyInfo destiny)
         {
-            if (destiny.PropertyType == typeof(string))
-            {
-                ToString(il, locals, source, destiny);
-            }
-            else if (source.PropertyType.IsPrimitive && destiny.PropertyType.IsPrimitive)
+            if (IsNetType(source.PropertyType) && IsNetType(destiny.PropertyType))
             {
                 if (ShouldUseSameType(source.PropertyType, destiny.PropertyType))
                 {
@@ -58,7 +38,6 @@ namespace CastForm.Rules
                 {
                     UseConverter(il, source, destiny);
                 }
-
             }
         }
 
@@ -129,5 +108,11 @@ namespace CastForm.Rules
             il.EmitCall(OpCodes.Call, convert, null);
             il.EmitCall(OpCodes.Callvirt, destiny.SetMethod, null);
         }
+
+        private static bool IsNetType(Type type) 
+            => type.IsPrimitive
+               || type == typeof(string)
+               || type == typeof(DateTime)
+               || type == typeof(decimal);
     }
 }
