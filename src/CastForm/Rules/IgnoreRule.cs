@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using CastForm.Generator;
 
 namespace CastForm.Rules
 {
@@ -17,7 +18,7 @@ namespace CastForm.Rules
         public bool Match(PropertyInfo property) 
             => property.Equals(_property);
 
-        public void Execute(ILGenerator il, IEnumerable<LocalBuilder> local)
+        public void Execute(ILGenerator il, FieldMapper local)
         {
             
         }

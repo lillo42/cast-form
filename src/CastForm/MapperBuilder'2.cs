@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using CastForm.Generator;
 using CastForm.Rules;
 
@@ -18,11 +19,8 @@ namespace CastForm
             _container = container ?? throw new ArgumentNullException(nameof(container));
         }
 
-        public IMapperBuilder<TSource1, TDestiny1> AddMapper<TSource1, TDestiny1>()
-        {
-            Register();
-            return new MapperBuilder<TSource1, TDestiny1>(this, _container);
-        }
+        public IMapperBuilder<TSource1, TDestiny1> AddMapper<TSource1, TDestiny1>() 
+            => new MapperBuilder<TSource1, TDestiny1>(this, _container);
 
         private void Register()
         {
@@ -44,7 +42,9 @@ namespace CastForm
                 throw new NotSupportedException();
             }
 
-            _rules.Add(new ForSameTypeRule(((MemberExpression)source.Body).Member, ((MemberExpression)destiny.Body).Member));
+            var sourceProperty = ((source.Body as MemberExpression).Member as PropertyInfo);
+            var destinyProperty = ((destiny.Body as MemberExpression).Member as PropertyInfo);
+            _rules.Add(ForRuleFactory.CreateRule(sourceProperty, destinyProperty));
             return this;
         }
 
@@ -55,7 +55,9 @@ namespace CastForm
                 throw new NotSupportedException();
             }
 
-            _rules.Add(new ForDifferentTypeRule(((MemberExpression)source.Body).Member, ((MemberExpression)destiny.Body).Member));
+            var sourceProperty = ((source.Body as MemberExpression).Member as PropertyInfo);
+            var destinyProperty = ((destiny.Body as MemberExpression).Member as PropertyInfo);
+            _rules.Add(ForRuleFactory.CreateRule(sourceProperty, destinyProperty));
             return this;
         }
 

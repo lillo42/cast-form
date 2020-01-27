@@ -12,7 +12,9 @@ namespace CastForm.Generator
         private readonly Type _source;
         private readonly Type _destiny;
         private readonly IEnumerable<IRuleMapper> _rules;
+        private TypeBuilder _typeBuilder;
         private ILGenerator _ilGenerator;
+        private FieldMapper _fieldMapper;
 
         public MapperGenerator(Type source, Type destiny, IEnumerable<IRuleMapper> rules)
         {
@@ -34,15 +36,33 @@ namespace CastForm.Generator
             var mapper = typeof(IMap<,>).MakeGenericType(new[] { _source, _destiny });
             var interfaces = new[] { mapper, typeof(IMap) };
 
-            var type = moduleBuilder.DefineType(typeName, typeAttributes, null, interfaces);
-            var methodBuilder = type.DefineMethod(nameof(IMapper.Map), 
+            _typeBuilder = moduleBuilder.DefineType(typeName, typeAttributes, null, interfaces);
+            var methodBuilder = _typeBuilder.DefineMethod(nameof(IMapper.Map), 
                 MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, 
                 _destiny, new[] { _source });
 
             _ilGenerator = methodBuilder.GetILGenerator();
             GenerateMap();
 
-            return type.CreateType();
+            if (_fieldMapper.Fields.Any())
+            {
+                var ctor =_typeBuilder.DefineConstructor(MethodAttributes.Public, 
+                    CallingConventions.Standard,
+                    _fieldMapper.Fields.Keys.ToArray());
+
+                var il = ctor.GetILGenerator();
+                var counter = 1;
+                foreach (var (type, field) in _fieldMapper.Fields)
+                {
+                    il.Emit(OpCodes.Ldarg_0);
+                    il.Emit(OpCodes.Ldarg_S, counter++);
+                    il.Emit(OpCodes.Stfld, field);
+                }
+
+                il.Emit(OpCodes.Ret);
+            }
+
+            return _typeBuilder.CreateType();
         }
 
 
@@ -51,7 +71,9 @@ namespace CastForm.Generator
             var sourceProperties = _source.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var destinyProperties = _destiny.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
-            var local = DefineLocalBuilders(sourceProperties, destinyProperties);
+            _fieldMapper = new FieldMapper(
+                DefineField(_typeBuilder, sourceProperties, destinyProperties),
+                new Dictionary<Type, LocalBuilder>());
 
             _ilGenerator.Emit(OpCodes.Newobj, _destiny.GetConstructor(new Type[0]));
 
@@ -60,7 +82,7 @@ namespace CastForm.Generator
                 var rule = _rules.FirstOrDefault(x => x.Match(sourceProperty));
                 if (rule != null)
                 {
-                    rule.Execute(_ilGenerator, local);
+                    rule.Execute(_ilGenerator, _fieldMapper);
                     continue;
                 }
 
@@ -71,46 +93,46 @@ namespace CastForm.Generator
                     continue;
                 }
 
-                if (sourceProperty.PropertyType == destinyProperty.PropertyType)
-                {
-                    ForSameTypeRule.Execute(_ilGenerator, sourceProperty, destinyProperty);
-                }
-                else
-                {
-                    ForDifferentTypeRule.Execute(_ilGenerator, local, sourceProperty, destinyProperty);
-                }
+                ForRuleFactory.CreateRule(sourceProperty, destinyProperty)
+                    .Execute(_ilGenerator, _fieldMapper);
             }
 
             _ilGenerator.Emit(OpCodes.Ret);
         }
 
-        private IDictionary<Type, LocalBuilder> DefineLocalBuilders(PropertyInfo[] sourceProperties, PropertyInfo[] destinyProperties)
+        private IReadOnlyDictionary<Type, FieldBuilder> DefineField(TypeBuilder builder, PropertyInfo[] sourceProperties, PropertyInfo[] destinyProperties)
         {
-            var local = new Dictionary<Type, LocalBuilder>();
-            var needLocalFields = _rules.Where(x => x is IRuleNeedLocalField).Cast<IRuleNeedLocalField>();
+            var fields = new Dictionary<Type, FieldBuilder>();
+            var needLocalFields = _rules.Where(x => x is IRuleNeedField).Cast<IRuleNeedField>();
             foreach (var localField in needLocalFields)
             {
-                foreach (var field in localField.LocalField)
+                if (!fields.ContainsKey(localField.Field))
                 {
-                    if (local.ContainsKey(field))
-                    {
-                        local.Add(field, _ilGenerator.DeclareLocal(field));
-                    }
+                    var args = localField.Field.GetGenericArguments();
+                    var fieldName = $"_map{args[0].Name}{args[1].Name}";
+                    fields.Add(localField.Field, builder.DefineField(fieldName, localField.Field, FieldAttributes.Private | FieldAttributes.InitOnly));
                 }
             }
 
             foreach (var sourceProperty in sourceProperties)
             {
-                var shouldCreate = destinyProperties.Any(x =>
-                    x.Name == sourceProperty.Name && x.PropertyType != sourceProperty.PropertyType);
+                var destinyProperty = destinyProperties.FirstOrDefault(x =>
+                    x.Name == sourceProperty.Name && x.PropertyType != sourceProperty.PropertyType
+                    && (!x.PropertyType.IsNetType() || !sourceProperty.PropertyType.IsNetType()));
 
-                if (shouldCreate && local.ContainsKey(sourceProperty.PropertyType))
+                if (destinyProperty != null)
                 {
-                    local.Add(sourceProperty.PropertyType, _ilGenerator.DeclareLocal(sourceProperty.PropertyType));
+                    var type = typeof(IMap<,>).MakeGenericType(new[] { sourceProperty.PropertyType, destinyProperty.PropertyType });
+                    if (!fields.ContainsKey(type))
+                    {
+                        var args = type.GetGenericArguments();
+                        var fieldName = $"_map{args[0].Name}{args[1].Name}";
+                        fields.Add(type, builder.DefineField(fieldName, type, FieldAttributes.Private | FieldAttributes.InitOnly));
+                    }
                 }
             }
 
-            return local;
+            return fields;
         }
     }
 }

@@ -1,0 +1,62 @@
+﻿using AutoFixture;
+using FluentAssertions;
+using Xunit;
+
+namespace CastForm.Test
+{
+    public class MappingForRuleWithObject
+    {
+        private readonly Fixture _fixture;
+
+        public MappingForRuleWithObject()
+        {
+            _fixture = new Fixture();
+        }
+        
+        [Fact]
+        public void For()
+        {
+            var mapper = new MapperBuilder()
+                .AddMapper<SimpleA, SimpleC>()
+                    .For(x => x.SimpleB, x => x.SimpleD)
+                .AddMapper<SimpleB, SimpleD>()
+                .Build();
+
+            var a = _fixture.Create<SimpleA>();
+            var c = mapper.Map<SimpleC>(a);
+            c.Should().NotBeNull();
+            
+            c.Id.Should().Be(a.Id);
+            c.Text.Should().Be(a.Text);
+            c.SimpleD.Should().NotBeNull();
+            c.SimpleD.Number.Should().Be(a.SimpleB.Number);
+            c.SimpleD.Value.Should().Be(a.SimpleB.Value);
+        }
+
+        public class SimpleA
+        {
+            public int Id { get; set; }
+            public string Text { get; set; }
+            public SimpleB SimpleB { get; set; }
+        }
+
+        public class SimpleB
+        {
+            public int Number { get; set; }
+            public string Value { get; set; }
+        }
+
+        public class SimpleC
+        {
+            public int Id { get; set; }
+            public string Text { get; set; }
+            public SimpleD SimpleD { get; set; }
+        }
+
+        public class SimpleD
+        {
+            public int Number { get; set; }
+            public string Value { get; set; }
+        }
+    }
+}

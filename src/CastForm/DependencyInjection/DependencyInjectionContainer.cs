@@ -27,7 +27,7 @@ namespace CastForm.DependencyInjection
             var toResolve = new List<Type>();
             foreach (var mapper in mappers)
             {
-                var constructors = mapper.GetConstructors(BindingFlags.Public);
+                var constructors = mapper.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
                 var mapArgs = mapper.GetInterfaces()[0].GetGenericArguments();
                 if (constructors.Length == 0)
                 {
@@ -60,7 +60,7 @@ namespace CastForm.DependencyInjection
 
                 if (dependencies.Count == parameters.Length)
                 {
-                    resolved.Add(new MapperKey(mapArgs[0], mapArgs[1]), (IMap)Activator.CreateInstance(mapper));
+                    resolved.Add(new MapperKey(mapArgs[0], mapArgs[1]), (IMap)Activator.CreateInstance(mapper, args: dependencies.ToArray()));
                 }
             }
 
