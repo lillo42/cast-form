@@ -84,17 +84,17 @@ namespace CastForm.Generator
             _ilGenerator.Emit(OpCodes.Ret);
         }
 
-        private IEnumerable<LocalBuilder> DefineLocalBuilders(PropertyInfo[] sourceProperties, PropertyInfo[] destinyProperties)
+        private IDictionary<Type, LocalBuilder> DefineLocalBuilders(PropertyInfo[] sourceProperties, PropertyInfo[] destinyProperties)
         {
-            var local = new List<LocalBuilder>();
+            var local = new Dictionary<Type, LocalBuilder>();
             var needLocalFields = _rules.Where(x => x is IRuleNeedLocalField).Cast<IRuleNeedLocalField>();
             foreach (var localField in needLocalFields)
             {
                 foreach (var field in localField.LocalField)
                 {
-                    if (local.All(x => x.LocalType != field))
+                    if (local.ContainsKey(field))
                     {
-                        local.Add(_ilGenerator.DeclareLocal(field));
+                        local.Add(field, _ilGenerator.DeclareLocal(field));
                     }
                 }
             }
@@ -104,9 +104,9 @@ namespace CastForm.Generator
                 var shouldCreate = destinyProperties.Any(x =>
                     x.Name == sourceProperty.Name && x.PropertyType != sourceProperty.PropertyType);
 
-                if (shouldCreate && local.All(x => x.LocalType != sourceProperty.PropertyType))
+                if (shouldCreate && local.ContainsKey(sourceProperty.PropertyType))
                 {
-                    local.Add(_ilGenerator.DeclareLocal(sourceProperty.PropertyType));
+                    local.Add(sourceProperty.PropertyType, _ilGenerator.DeclareLocal(sourceProperty.PropertyType));
                 }
             }
 

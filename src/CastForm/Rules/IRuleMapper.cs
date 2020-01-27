@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -8,6 +9,6 @@ namespace CastForm
     {
         bool Match(PropertyInfo property);
 
-        void Execute(ILGenerator il, IEnumerable<LocalBuilder> local);
+        void Execute(ILGenerator il, IDictionary<Type, LocalBuilder> local);
     }
 }

@@ -22,10 +22,10 @@ namespace CastForm.Rules
         public bool Match(PropertyInfo property)
             => _source.Equals(property);
 
-        public void Execute(ILGenerator il, IEnumerable<LocalBuilder> local)
+        public void Execute(ILGenerator il, IDictionary<Type, LocalBuilder> local)
             => Execute(il, local, _source, _destiny);
 
-        internal static void Execute(ILGenerator il, IEnumerable<LocalBuilder> locals, PropertyInfo source,
+        internal static void Execute(ILGenerator il, IDictionary<Type, LocalBuilder> locals, PropertyInfo source,
             PropertyInfo destiny)
         {
             if (IsNetType(source.PropertyType) && IsNetType(destiny.PropertyType))
@@ -41,9 +41,9 @@ namespace CastForm.Rules
             }
         }
 
-        private static void ToString(ILGenerator il, IEnumerable<LocalBuilder> locals, PropertyInfo source, PropertyInfo destiny)
+        private static void ToString(ILGenerator il, IDictionary<Type, LocalBuilder> locals, PropertyInfo source, PropertyInfo destiny)
         {
-            var local = GetLocalBuilder(locals, source.PropertyType);
+            var local = locals[source.PropertyType];
             il.Emit(OpCodes.Dup);
             il.Emit(OpCodes.Ldarg_1);
             il.EmitCall(OpCodes.Callvirt, source.GetMethod, null);
@@ -61,9 +61,6 @@ namespace CastForm.Rules
             il.EmitCall(OpCodes.Callvirt, destiny.SetMethod, null);
         }
 
-        private static LocalBuilder GetLocalBuilder(IEnumerable<LocalBuilder> locals, Type type)
-            => locals.First(x => x.LocalType == type);
-
         private static bool ShouldUseSameType(Type source, Type destiny)
         {
             if (destiny == typeof(int)
@@ -73,7 +70,8 @@ namespace CastForm.Rules
                        || source == typeof(uint)
                        || source == typeof(short)
                        || source == typeof(ushort)
-                       || source == typeof(byte);
+                       || source == typeof(byte)
+                       || source == typeof(sbyte);
             }
 
             if (destiny == typeof(long)
@@ -85,7 +83,8 @@ namespace CastForm.Rules
                        || source == typeof(uint)
                        || source == typeof(short)
                        || source == typeof(ushort)
-                       || source == typeof(byte);
+                       || source == typeof(byte)
+                       || source == typeof(sbyte);
             }
 
             if (destiny == typeof(short)
@@ -93,7 +92,15 @@ namespace CastForm.Rules
             {
                 return source == typeof(short)
                        || source == typeof(ushort)
-                       || source == typeof(byte);
+                       || source == typeof(byte)
+                       || source == typeof(sbyte);
+            }
+
+            if (destiny == typeof(byte)
+                || destiny == typeof(sbyte))
+            {
+                return source == typeof(byte)
+                       || source == typeof(sbyte);
             }
 
             return false;
