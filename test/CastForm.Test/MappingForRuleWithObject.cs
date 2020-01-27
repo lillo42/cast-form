@@ -33,6 +33,25 @@ namespace CastForm.Test
             c.SimpleD.Value.Should().Be(a.SimpleB.Value);
         }
 
+        [Fact]
+        public void MapWithoutFor()
+        {
+            var mapper = new MapperBuilder()
+                .AddMapper<SimpleA, SimpleE>()
+                .AddMapper<SimpleB, SimpleD>()
+                .Build();
+
+            var a = _fixture.Create<SimpleA>();
+            var c = mapper.Map<SimpleE>(a);
+            c.Should().NotBeNull();
+
+            c.Id.Should().Be(a.Id);
+            c.Text.Should().Be(a.Text);
+            c.SimpleB.Should().NotBeNull();
+            c.SimpleB.Number.Should().Be(a.SimpleB.Number);
+            c.SimpleB.Value.Should().Be(a.SimpleB.Value);
+        }
+
         public class SimpleA
         {
             public int Id { get; set; }
@@ -57,6 +76,13 @@ namespace CastForm.Test
         {
             public int Number { get; set; }
             public string Value { get; set; }
+        }
+
+        public class SimpleE
+        {
+            public int Id { get; set; }
+            public string Text { get; set; }
+            public SimpleD SimpleB { get; set; }
         }
     }
 }
