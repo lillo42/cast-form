@@ -1,7 +1,10 @@
 name: Release
 on: 
   release:
-    types: [published, created, edited]
+    types: [created]
+    tags:
+      - 'v*.*.*'
+    
 
 jobs:
   build:
@@ -25,11 +28,13 @@ jobs:
     needs: build
     steps:
     - uses: actions/checkout@v1
+    - name: GET Version
+      run: echo ::set-env name=RELEASE_VERSION::${GITHUB_REF:10}
     - name: Setup dotnet version
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.101
     - name: Pack
-      run: dotnet pack ./src/CastForm -c Release --include-source -o ./artifacts/pack -p:PackageVersion=${{github.ref}}
+      run: dotnet pack ./src/CastForm -c Release --include-source -o ./artifacts/pack -p:PackageVersion=${{env.RELEASE_VERSION}}
     - name: Publish
       run: dotnet nuget push ./artifacts/pack/*.nupkg -k ${{secrets.NUGET_TOKEN}} 
