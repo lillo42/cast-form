@@ -30,6 +30,6 @@ jobs:
       with:
         dotnet-version: 3.1.101
     - name: Pack
-      run: dotnet pack ./src/CastForm -c Release --include-source -o ./artifacts/pack -p:PackageVersion=github.ref
+      run: dotnet pack ./src/CastForm -c Release --include-source -o ./artifacts/pack -p:PackageVersion=${{github.ref}}
     - name: Publish
       run: dotnet nuget push ./artifacts/pack/*.nupkg -k ${{secrets.NUGET_TOKEN}} 
