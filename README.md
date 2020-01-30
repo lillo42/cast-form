@@ -40,6 +40,11 @@ Via nuget, [install NuGet](http://docs.nuget.org/docs/start-here/installing-nuge
 PM> Install-Package AutoMapper
 ```
 
+### Current limitation
+
+- Not support circle reference
+- Not support IEnumerable, List, Collection
+- Not support Nulalble
 
 ### Do you have an issue?
 
