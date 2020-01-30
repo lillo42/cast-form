@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using CastForm.Generator;
 
 namespace CastForm
 {
@@ -10,6 +9,6 @@ namespace CastForm
     {
         bool Match(PropertyInfo property);
 
-        void Execute(ILGenerator il, FieldMapper local);
+        void Execute(ILGenerator il, IReadOnlyDictionary<Type, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields);
     }
 }
