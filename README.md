@@ -1,6 +1,8 @@
 # Cast Form
 
 ![build](https://github.com/lillo42/cast-form/workflows/Build%20Master/badge.svg)
+[![NuGet](http://img.shields.io/nuget/v/CastForm.svg)](https://www.nuget.org/packages/CastForm/)
+
 
 ### What is Cast Form?
 
@@ -23,8 +25,6 @@ Then in your application code, execute the mappings:
 var fooDto = mapper.Map<FooDto>(foo);
 var barDto = mapper.Map<BarDto>(bar);
 ```
-
-Check out the [getting started guide](https://automapper.readthedocs.io/en/latest/Getting-started.html). When you're done there, the [wiki](https://automapper.readthedocs.io/en/latest/) goes in to the nitty-gritty details. If you have questions, you can post them to [Stack Overflow](https://stackoverflow.com/questions/tagged/automapper) or in our [Gitter](https://gitter.im/AutoMapper/AutoMapper).
 
 ### Where can I get it?
 
