@@ -144,7 +144,7 @@ namespace CastForm.Generator
             var needLocalFields = rules.Where(x => x is IRuleNeedLocalField).Cast<IRuleNeedLocalField>();
             foreach (var localField in needLocalFields)
             {
-                if (!fields.ContainsKey(localField.LocalField))
+                if (localField.LocalField != null && !fields.ContainsKey(localField.LocalField))
                 {
                     fields.Add(localField.LocalField, generator.DeclareLocal(localField.LocalField));
                 }

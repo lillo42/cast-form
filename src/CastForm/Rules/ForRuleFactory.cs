@@ -24,7 +24,7 @@ namespace CastForm.Rules
                 var destinyType = destiny.PropertyType.GetUnderlyingType();
                 if (sourceType == destinyType)
                 {
-                    return new ForRuleNullableType(source, destiny);
+                    return new ForRuleNullableWithSameType(source, destiny);
                 }
             }
 

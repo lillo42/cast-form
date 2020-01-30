@@ -15,7 +15,7 @@ namespace CastForm.Test.Nullable
         }
         
         [Fact]
-        public void For()
+        public void SourceNullableAndDestinyNotNullable()
         {
             var mapper = new MapperBuilder()
                 .AddMapper<SimpleA, SimpleB>()
@@ -29,6 +29,20 @@ namespace CastForm.Test.Nullable
 
             b.Number.Should().Be(a.Id);
             b.Value.Should().Be(a.Text);
+        }
+
+
+        [Fact]
+        public void SourceNotNullableAndDestinyNullable()
+        {
+            var mapper = new MapperBuilder()
+                .AddMapper<SimpleB, SimpleC>()
+                .Build();
+
+            var a = _fixture.Create<SimpleB>();
+            var b = mapper.Map<SimpleC>(a);
+            b.Should().NotBeNull();
+            b.Should().BeEquivalentTo(a);
         }
 
         public class SimpleA
@@ -45,9 +59,8 @@ namespace CastForm.Test.Nullable
 
         public class SimpleC
         {
-            public string Number { get; set; }
+            public int Number { get; set; }
             public string Value { get; set; }
-            public bool IsEnable { get; set; }
         }
     }
 }
