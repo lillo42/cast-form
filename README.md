@@ -46,7 +46,7 @@ PM> Install-Package AutoMapper
 You might want to know exactly what [your mapping does](https://<To add>) at runtime.
 
 If you're still running into problems, file an issue above.
-f
+
 ### License, etc.
 
 This project has adopted the code of conduct defined by the Contributor Covenant to clarify expected behavior in our community.
