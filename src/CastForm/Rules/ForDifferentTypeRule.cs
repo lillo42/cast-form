@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using CastForm.Generator;
 
 namespace CastForm.Rules
 {
@@ -20,9 +20,9 @@ namespace CastForm.Rules
         public bool Match(PropertyInfo property)
             => _source.Equals(property);
 
-        public void Execute(ILGenerator il, FieldMapper field)
+        public void Execute(ILGenerator il, IReadOnlyDictionary<Type, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields)
         {
-            var builder = field.Fields[Field];
+            var builder = fields[Field];
 
             il.Emit(OpCodes.Dup);
             il.Emit(OpCodes.Ldarg_0);
