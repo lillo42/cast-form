@@ -35,7 +35,7 @@ namespace CastForm
             return _parent.Build();
         }
 
-        public IMapperBuilder<TSource, TDestiny> For<TSourceMember, TDestinyMember>(Expression<Func<TSource, TSourceMember>> source, Expression<Func<TDestiny, TDestinyMember>> destiny)
+        public IMapperBuilder<TSource, TDestiny> For<TSourceMember, TDestinyMember>(Expression<Func<TDestiny, TDestinyMember>> destiny, Expression<Func<TSource, TSourceMember>> source)
         {
             if(source.Body.NodeType != ExpressionType.MemberAccess && destiny.Body.NodeType != ExpressionType.MemberAccess)
             {
