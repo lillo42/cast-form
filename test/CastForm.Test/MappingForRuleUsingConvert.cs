@@ -17,7 +17,6 @@ namespace CastForm.Test
         [Fact]
         public void ForDifferentType()
         {
-            Convert.ToString(0);
             var mapper = new MapperBuilder()
                     .AddMapper<SimpleA, SimpleB>()
                 .Build();

@@ -18,7 +18,7 @@ namespace CastForm.Test
         {
             var mapper = new MapperBuilder()
                 .AddMapper<SimpleA, SimpleC>()
-                    .For(x => x.SimpleB, x => x.SimpleD)
+                    .For(x => x.SimpleD, x => x.SimpleB)
                 .AddMapper<SimpleB, SimpleD>()
                 .Build();
 

@@ -19,8 +19,8 @@ namespace CastForm.Test.Nullable
         {
             var mapper = new MapperBuilder()
                 .AddMapper<SimpleA, SimpleB>()
-                    .For(x => x.Id, x => x.Number)
-                    .For(x =>x.Text, x => x.Value)
+                    .For(x => x.Number, x => x.Id)
+                    .For(x =>x.Value, x => x.Text)
                 .Build();
 
             var a = _fixture.Create<SimpleA>();
