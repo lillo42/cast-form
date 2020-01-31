@@ -5,11 +5,11 @@ using Xunit;
 
 namespace CastForm.Test.Nullable
 {
-    public class MappingForRule
+    public class MappingForRuleSameType
     {
         private readonly Fixture _fixture;
 
-        public MappingForRule()
+        public MappingForRuleSameType()
         {
             _fixture = new Fixture();
         }
@@ -30,7 +30,6 @@ namespace CastForm.Test.Nullable
             b.Number.Should().Be(a.Id);
             b.Value.Should().Be(a.Text);
         }
-
 
         [Fact]
         public void SourceNotNullableAndDestinyNullable()

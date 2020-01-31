@@ -26,6 +26,8 @@ namespace CastForm.Rules
                 {
                     return new ForRuleNullableWithSameType(source, destiny);
                 }
+
+                return new ForRuleNullableWithDifferentType(source, destiny);
             }
 
             return new ForDifferentTypeRule(source,destiny);
