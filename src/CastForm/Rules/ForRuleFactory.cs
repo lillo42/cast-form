@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 
 namespace CastForm.Rules
 {
@@ -14,6 +15,17 @@ namespace CastForm.Rules
             if (source.PropertyType.IsNetType() && destiny.PropertyType.IsNetType())
             {
                 return new ForDifferentNetTypeRule(source, destiny);
+            }
+
+            if ((source.PropertyType.IsNullable() && !destiny.PropertyType.IsNullable() && destiny.PropertyType.IsNetType())
+                || (!source.PropertyType.IsNullable() && destiny.PropertyType.IsNullable() && source.PropertyType.IsNetType()))
+            {
+                var sourceType = source.PropertyType.GetUnderlyingType();
+                var destinyType = destiny.PropertyType.GetUnderlyingType();
+                if (sourceType == destinyType)
+                {
+                    return new ForRuleNullableWithSameType(source, destiny);
+                }
             }
 
             return new ForDifferentTypeRule(source,destiny);
