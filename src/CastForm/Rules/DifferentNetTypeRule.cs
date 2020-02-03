@@ -5,12 +5,12 @@ using System.Reflection.Emit;
 
 namespace CastForm.Rules
 {
-    public class ForDifferentNetTypeRule : IRuleMapper
+    public class DifferentNetTypeRule : IRuleMapper
     {
         private readonly PropertyInfo _source;
         private readonly PropertyInfo _destiny;
 
-        public ForDifferentNetTypeRule(MemberInfo source, MemberInfo destiny)
+        public DifferentNetTypeRule(MemberInfo source, MemberInfo destiny)
         {
             _source = source as PropertyInfo ?? throw new ArgumentNullException(nameof(source));
             _destiny = destiny as PropertyInfo ?? throw new ArgumentNullException(nameof(destiny));
@@ -26,7 +26,7 @@ namespace CastForm.Rules
         {
             if (ShouldUseSameType(source.PropertyType, destiny.PropertyType))
             {
-                ForSameTypeRule.Execute(il, source, destiny);
+                SameTypeRule.Execute(il, source, destiny);
             }
             else
             {

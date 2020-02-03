@@ -5,12 +5,12 @@ using System.Reflection.Emit;
 
 namespace CastForm.Rules
 {
-    public class ForSameTypeRule : IRuleMapper
+    public class SameTypeRule : IRuleMapper
     {
         private readonly PropertyInfo _source;
         private readonly PropertyInfo _destiny;
 
-        public ForSameTypeRule(MemberInfo source, MemberInfo destiny)
+        public SameTypeRule(MemberInfo source, MemberInfo destiny)
         {
             _source = source as PropertyInfo ?? throw new ArgumentNullException(nameof(source));
             _destiny = destiny as PropertyInfo ?? throw new ArgumentNullException(nameof(destiny));

@@ -44,7 +44,6 @@ PM> Install-Package AutoMapper
 
 - Not support circle reference
 - Not support IEnumerable, List, Collection
-- Not support Nulalble
 
 ### Do you have an issue?
 
