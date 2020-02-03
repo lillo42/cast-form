@@ -1,38 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CastForm
 {
     public class Mapper : IMapper
     {
-        private readonly Dictionary<MapperKey, IMap> _mappers;
+        private readonly IServiceProvider _provider;
 
-        public Mapper(Dictionary<MapperKey, IMap> mappers)
+        public Mapper(IServiceProvider mappers)
         {
-            _mappers = mappers;
+            _provider = mappers ?? throw new ArgumentNullException(nameof(mappers));
         }
 
         public TDestiny Map<TSource, TDestiny>(TSource source)
         {
-            var key = new MapperKey(typeof(TSource), typeof(TDestiny));
-
-            if (!_mappers.TryGetValue(key, out var mapper))
-            {
-                throw new Exception();
-            }
-
-            return ((IMap<TSource, TDestiny>) mapper).Map(source);
+            return _provider.GetRequiredService<IMap<TSource, TDestiny>>()
+                .Map(source);
         }
 
         public TDestiny Map<TDestiny>(object source)
         {
-            var key = new MapperKey(source.GetType(), typeof(TDestiny));
-
-            if (!_mappers.TryGetValue(key, out var mapper))
-            {
-                throw new Exception();
-            }
-
+            var mapperType = typeof(IMap<,>).MakeGenericType(source.GetType(), typeof(TDestiny));
+            var mapper = (IMap)_provider.GetRequiredService(mapperType);
             return (TDestiny)mapper.Map(source);
         }
     }

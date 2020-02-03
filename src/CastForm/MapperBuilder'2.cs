@@ -4,29 +4,48 @@ using System.Linq.Expressions;
 using System.Reflection;
 using CastForm.Generator;
 using CastForm.Rules;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CastForm
 {
-    public class MapperBuilder<TSource, TDestiny> : IMapperBuilder<TSource, TDestiny>
+    public class MapperBuilder<TSource, TDestiny> : IMapperBuilder<TSource, TDestiny>, IRegisterMap
     {
-        private readonly IMapperBuilder _parent;
         private readonly ICollection<IRuleMapper> _rules = new List<IRuleMapper>();
-        private readonly IDependencyInjectionContainer _container;
+        private readonly IMapperBuilder _parent;
+        private readonly IServiceCollection _service;
 
-        public MapperBuilder(IMapperBuilder parent, IDependencyInjectionContainer container)
+        public MapperBuilder(IMapperBuilder parent, IServiceCollection service)
         {
             _parent = parent ?? throw new ArgumentNullException(nameof(parent));
-            _container = container ?? throw new ArgumentNullException(nameof(container));
+            _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
-        public IMapperBuilder<TSource1, TDestiny1> AddMapper<TSource1, TDestiny1>() 
-            => new MapperBuilder<TSource1, TDestiny1>(this, _container);
+        public IMapperBuilder<TDestiny, TSource> Reverse()
+            => AddMapper<TDestiny, TSource>();
+
+        public IMapperBuilder<TSource1, TDestiny1> AddMapper<TSource1, TDestiny1>()
+        {
+            var mapper = new MapperBuilder<TSource1, TDestiny1>(this, _service);
+            _parent.AddMapper(mapper);
+            return mapper;
+        } 
+
+        IMapperBuilder IMapperBuilder.AddMapper(IMapperBuilder mapperBuilder)
+        {
+            _parent.AddMapper(mapperBuilder);
+            return this;
+        }
+
+        void IRegisterMap.Register()
+            => Register();
 
         private void Register()
         {
-            var gen = new MapperGenerator(typeof(TSource), typeof(TDestiny), _rules);
-            var mapper = gen.Generate();
-            _container.RegisterType(mapper);
+            var mapper = new MapperGenerator(typeof(TSource), typeof(TDestiny), _rules)
+                .Generate();
+
+            _service.TryAddSingleton(typeof(IMap<TSource, TDestiny>), mapper);
         }
 
         IMapper IMapperBuilder.Build()
@@ -48,7 +67,6 @@ namespace CastForm
             return this;
         }
 
-
         public IMapperBuilder<TSource, TDestiny> Ignore<TMember>(Expression<Func<TSource, TMember>> source)
         {
             if (source.Body.NodeType != ExpressionType.MemberAccess)
@@ -61,7 +79,6 @@ namespace CastForm
             return this;
         }
 
-        public IMapperBuilder<TDestiny, TSource> Reverse() 
-            => new MapperBuilder<TDestiny, TSource>(this, _container);
+        
     }
 }

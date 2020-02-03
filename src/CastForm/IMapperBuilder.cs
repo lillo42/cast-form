@@ -6,6 +6,7 @@ namespace CastForm
     public interface IMapperBuilder
     {
         IMapperBuilder<TSource, TDestiny> AddMapper<TSource, TDestiny>();
+        IMapperBuilder AddMapper(IMapperBuilder mapperBuilder);
 
         IMapper Build();
     }
@@ -16,5 +17,10 @@ namespace CastForm
 
         IMapperBuilder<TSource, TDestiny> Ignore<TMember>(Expression<Func<TSource, TMember>> source);
         IMapperBuilder<TDestiny, TSource> Reverse();
+    }
+
+    internal interface IRegisterMap
+    {
+        void Register();
     }
 }
