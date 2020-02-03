@@ -9,12 +9,12 @@ namespace CastForm.Rules
         {
             if (source.PropertyType == destiny.PropertyType)
             {
-                return new ForSameTypeRule(source, destiny);
+                return new SameTypeRule(source, destiny);
             }
 
             if (source.PropertyType.IsNetType() && destiny.PropertyType.IsNetType())
             {
-                return new ForDifferentNetTypeRule(source, destiny);
+                return new DifferentNetTypeRule(source, destiny);
             }
 
             if ((source.PropertyType.IsNullable() && !destiny.PropertyType.IsNullable() && destiny.PropertyType.IsNetType())
@@ -24,13 +24,20 @@ namespace CastForm.Rules
                 var destinyType = destiny.PropertyType.GetUnderlyingType();
                 if (sourceType == destinyType)
                 {
-                    return new ForRuleNullableWithSameType(source, destiny);
+                    return new NullableRuleForSameTypeWhenOneIsNullable(source, destiny);
                 }
 
-                return new ForRuleNullableWithDifferentType(source, destiny);
+                return new NullableRuleForDifferentTypeWhenOneIsNullable(source, destiny);
             }
 
-            return new ForDifferentTypeRule(source,destiny);
+            if (source.PropertyType.IsNullable() && destiny.PropertyType.IsNullable() 
+                && source.PropertyType.GetUnderlyingType().IsNetType() && destiny.PropertyType.GetUnderlyingType().IsNetType())
+            {
+                
+                return new NullableRuleForDifferentType(source, destiny);
+            }
+
+            return new DifferentTypeRule(source,destiny);
         }
     }
 }

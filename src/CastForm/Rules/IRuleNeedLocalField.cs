@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CastForm.Rules
 {
     public interface IRuleNeedLocalField
     {
-        Type LocalField { get; }
+        IEnumerable<Type> LocalFields { get; }
     }
 }
