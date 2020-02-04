@@ -46,7 +46,7 @@ namespace CastForm.Generator
             var rules = GetAllRules(sourceProperties, destinyProperties);
             var fields = DefineField(typeBuilder, rules);
 
-            GenerateMap(generator, rules, fields, _destiny, sourceProperties, destinyProperties);
+            GenerateMap(generator, rules, fields, _destiny, sourceProperties);
 
             CreateConstructor(typeBuilder, fields);
 
@@ -79,8 +79,7 @@ namespace CastForm.Generator
             IEnumerable<IRuleMapper> rules,
             IReadOnlyDictionary<Type, FieldBuilder> fields,
             Type destiny,
-            PropertyInfo[] sourceProperties, 
-            PropertyInfo[] destinyProperties)
+            PropertyInfo[] sourceProperties)
         {
 
             var localFields = DefineLocalField(generator, rules);
