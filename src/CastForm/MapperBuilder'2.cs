@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using CastForm.Collection;
 using CastForm.Generator;
 using CastForm.Rules;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,6 +47,10 @@ namespace CastForm
                 .Generate();
 
             _service.TryAddSingleton(typeof(IMap<TSource, TDestiny>), mapper);
+            
+            var mappingEnumerable = typeof(LazyEnumerableMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
+            _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, IEnumerable<TDestiny>>), mappingEnumerable);
+            
         }
 
         IMapper IMapperBuilder.Build()
@@ -61,8 +66,8 @@ namespace CastForm
                 throw new NotSupportedException();
             }
 
-            var sourceProperty = ((source.Body as MemberExpression).Member as PropertyInfo);
-            var destinyProperty = ((destiny.Body as MemberExpression).Member as PropertyInfo);
+            var sourceProperty = ((source.Body as MemberExpression)!.Member as PropertyInfo)!;
+            var destinyProperty = ((destiny.Body as MemberExpression)!.Member as PropertyInfo)!;
             _rules.Add(ForRuleFactory.CreateRule(sourceProperty, destinyProperty));
             return this;
         }

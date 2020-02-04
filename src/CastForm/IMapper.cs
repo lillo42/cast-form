@@ -1,4 +1,6 @@
-﻿namespace CastForm
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace CastForm
 {
     public interface IMapper
     {
@@ -14,6 +16,7 @@
 
     public interface IMap<TSource, TDestiny> : IMap
     {
+        [return: MaybeNull]
         object IMap.Map(object source)
             => Map((TSource)source);
 

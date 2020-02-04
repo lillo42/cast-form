@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CastForm
@@ -20,7 +22,13 @@ namespace CastForm
 
         public TDestiny Map<TDestiny>(object source)
         {
-            var mapperType = typeof(IMap<,>).MakeGenericType(source.GetType(), typeof(TDestiny));
+            var sourceType = source.GetType();
+            if (source is IEnumerable)
+            {
+                sourceType = typeof(IEnumerable<>).MakeGenericType(sourceType.GetGenericArguments()[0]);
+            }
+
+            var mapperType = typeof(IMap<,>).MakeGenericType(sourceType, typeof(TDestiny));
             var mapper = (IMap)_provider.GetRequiredService(mapperType);
             return (TDestiny)mapper.Map(source);
         }
