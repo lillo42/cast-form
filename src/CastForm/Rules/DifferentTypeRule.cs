@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -14,7 +16,6 @@ namespace CastForm.Rules
         {
             _source = source as PropertyInfo ?? throw new ArgumentNullException(nameof(source));
             _destiny = destiny as PropertyInfo ?? throw new ArgumentNullException(nameof(destiny));
-            Field = typeof(IMap<,>).MakeGenericType(_source.PropertyType, _destiny.PropertyType);
         }
 
         public bool Match(PropertyInfo property)
@@ -33,6 +34,19 @@ namespace CastForm.Rules
             il.EmitCall(OpCodes.Callvirt, _destiny.SetMethod, null);
         }
 
-        public Type Field { get; }
+        public Type Field
+        {
+            get
+            {
+
+                var sourceType = _source.PropertyType;
+                if (sourceType.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+                {
+                    sourceType = typeof(IEnumerable<>).MakeGenericType(sourceType.GetGenericArguments()[0]);
+                }
+
+                return typeof(IMap<,>).MakeGenericType(sourceType, _destiny.PropertyType);
+            }
+        }
     }
 }

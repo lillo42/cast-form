@@ -48,9 +48,23 @@ namespace CastForm
 
             _service.TryAddSingleton(typeof(IMap<TSource, TDestiny>), mapper);
             
-            var mappingEnumerable = typeof(LazyEnumerableMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
-            _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, IEnumerable<TDestiny>>), mappingEnumerable);
-            
+            var enumerable = typeof(LazyEnumerableMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
+            _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, IEnumerable<TDestiny>>), enumerable);
+
+            var linkedList = typeof(LinkedListCollectionMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
+            _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, ICollection<TDestiny>>), linkedList);
+
+            var list = typeof(ListCollectionMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
+            _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, List<TDestiny>>), list);
+
+            var iList = typeof(IListCollectionMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
+            _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, IList<TDestiny>>), iList);
+
+            var hashSet = typeof(HashSetCollectionMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
+            _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, HashSet<TDestiny>>), hashSet);
+
+            var iSet = typeof(ISetCollectionMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
+            _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, ISet<TDestiny>>), iSet);
         }
 
         IMapper IMapperBuilder.Build()
