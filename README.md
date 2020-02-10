@@ -37,13 +37,14 @@ dotnet add package CastForm
 Via nuget, [install NuGet](http://docs.nuget.org/docs/start-here/installing-nuget). Then, install [Cast Form](https://www.nuget.org/packages/CastForm/) from the package manager console:
 
 ```
-PM> Install-Package AutoMapper
+PM> Install-Package CastForm
 ```
 
 ### Current limitation
 
 - Not support circle reference
-- Not support IEnumerable, List, Collection
+- Not support expression
+
 
 ### Do you have an issue?
 
