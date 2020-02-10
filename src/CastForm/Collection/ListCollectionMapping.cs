@@ -3,6 +3,11 @@ using System.Collections.Generic;
 
 namespace CastForm.Collection
 {
+    /// <summary>
+    /// Map as List
+    /// </summary>
+    /// <typeparam name="TSource">Source type</typeparam>
+    /// <typeparam name="TDestiny">Destination type to create</typeparam>
     public class ListCollectionMapping<TSource, TDestiny> : IMap<IEnumerable<TSource>, List<TDestiny>>
     {
         private readonly IMap<TSource, TDestiny> _map;
@@ -25,6 +30,11 @@ namespace CastForm.Collection
         }
     }
 
+    /// <summary>
+    /// Map as IList
+    /// </summary>
+    /// <typeparam name="TSource">Source type</typeparam>
+    /// <typeparam name="TDestiny">Destination type to create</typeparam>
     public class IListCollectionMapping<TSource, TDestiny> : IMap<IEnumerable<TSource>, IList<TDestiny>>
     {
         private readonly IMap<TSource, TDestiny> _map;

@@ -5,6 +5,10 @@ using System.Reflection.Emit;
 
 namespace CastForm.Rules
 {
+    /// <summary>
+    /// Rule when both are nullable and different type. like:
+    ///     int? Id -> long? Id
+    /// </summary>
     public class NullableRuleForDifferentType : IRuleMapper, IRuleNeedLocalField
     {
         private readonly PropertyInfo _source;

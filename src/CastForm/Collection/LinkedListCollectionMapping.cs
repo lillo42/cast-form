@@ -3,6 +3,11 @@ using System.Collections.Generic;
 
 namespace CastForm.Collection
 {
+    /// <summary>
+    /// Map as ICollection
+    /// </summary>
+    /// <typeparam name="TSource">Source type</typeparam>
+    /// <typeparam name="TDestiny">Destination type to create</typeparam>
     public class LinkedListCollectionMapping<TSource, TDestiny> : IMap<IEnumerable<TSource>, ICollection<TDestiny>>
     {
         private readonly IMap<TSource, TDestiny> _map;

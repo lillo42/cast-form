@@ -5,6 +5,10 @@ using System.Reflection.Emit;
 
 namespace CastForm.Rules
 {
+    /// <summary>
+    /// Rule when One is nullable and other not and different type. like:
+    ///     int Id -> long? Id
+    /// </summary>
     public class NullableRuleForDifferentTypeWhenOneIsNullable : IRuleMapper, IRuleNeedLocalField
     {
         private readonly PropertyInfo _source;
@@ -29,10 +33,12 @@ namespace CastForm.Rules
         {
             if (_destiny.PropertyType.IsNullable())
             {
+                // based on https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYGYAE9MGFMiYCSAsgIYAOmA3qpvdlgMpgC2FEApgEKbkUAKFuy4BBTAGcA9gFcATgGNOAShp0GGmAHZMAO04B3TMI491G+rRQWbxACaYAvHim6AbpznAAdABUpRLrA6HAC0vJK3kR2ygA05hYAvgDcCYmo6SioqBiYYEGeAGZkSsT8qFYaJly8/EJspuLhiiqpKJk5WDjVnKIVCbkQrgDm9jSYw5zAyZJTM5kdaF1wxg01/dYMufnAAPxj1BNzs9OYC0A===
                 GenerateMapWithDestinyAsNullable(il);
             }
             else
             {
+                // based on https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYGYAE9MGFMiYCSAsgIYAOmA3qpvdlgMpgC2FEApgEKbkUAKFuy4BBTAGcA9gFcATgGNOAShp0GGmAHZMAO04B3TMI491G+rRQWbxACaYAvHim6AbpznAAdABUpRLrA6HAC0vJK3kQOAPwxmHacAGZkMhDAyuYWAL4A3FnZqIUoqKgYmGBBnilKxPyoVhomXLz8Qmym4uGKKvkoxWVYOM2cog1Z5RCuAObx0TSY05zAuZLLq8UDaENwxh0t49YM5ZXA9gtLK2tXm0A===
                 GenerateMapWithDestinyAsNotNullable(il, localFields);
             }
         }

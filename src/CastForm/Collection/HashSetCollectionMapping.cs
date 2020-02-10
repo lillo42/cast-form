@@ -3,6 +3,11 @@ using System.Collections.Generic;
 
 namespace CastForm.Collection
 {
+    /// <summary>
+    /// Map as HashSet
+    /// </summary>
+    /// <typeparam name="TSource">Source type</typeparam>
+    /// <typeparam name="TDestiny">Destination type to create</typeparam>
     public class HashSetCollectionMapping<TSource, TDestiny> : IMap<IEnumerable<TSource>, HashSet<TDestiny>>
     {
         private readonly IMap<TSource, TDestiny> _map;
@@ -25,6 +30,11 @@ namespace CastForm.Collection
         }
     }
 
+    /// <summary>
+    /// Map as ISet
+    /// </summary>
+    /// <typeparam name="TSource">Source type</typeparam>
+    /// <typeparam name="TDestiny">Destination type to create</typeparam>
     public class ISetCollectionMapping<TSource, TDestiny> : IMap<IEnumerable<TSource>, ISet<TDestiny>>
     {
         private readonly IMap<TSource, TDestiny> _map;

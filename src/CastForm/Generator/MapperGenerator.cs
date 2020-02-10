@@ -7,6 +7,9 @@ using CastForm.Rules;
 
 namespace CastForm.Generator
 {
+    /// <summary>
+    /// Generate Map for define source and destiny.
+    /// </summary>
     internal class MapperGenerator
     {
         private readonly Type _source;
@@ -20,6 +23,10 @@ namespace CastForm.Generator
             _rules = rules ?? throw new ArgumentNullException(nameof(rules));
         }
 
+        /// <summary>
+        /// Build IMap
+        /// </summary>
+        /// <returns>Generated <see cref="IMap"/></returns>
         public Type Generate()
         {
             var typeName = $"{_source.Name}To{_destiny.Name}Mapper";

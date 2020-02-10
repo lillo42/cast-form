@@ -5,8 +5,12 @@ using System.Reflection.Emit;
 
 namespace CastForm.Rules
 {
+    /// <summary>
+    /// Set when the type math
+    /// </summary>
     public class SameTypeRule : IRuleMapper
     {
+        // based on https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYGYAE9MGFMiYCSAsgIYAOmA3qpvdlgMpgC2FEApgEKbkUAKFuy4BBTAGcA9gFcATgGNOAShp0GGmAHZMAO04B3TMI491G+rRQWbxACaYAvJNmLOAOiJ2ANOdv0AFU4AD2AnF3kldyDQvw0AXwBuP3jUVJRUVAxMMF1gTjkAMzIlYn5UKw0TLl5+ITZTcWlIlWSUdKysHGrOUQq/bNywrxpMAHNOYETJSen0zS6EAAZMGLDqcdmZqcx5hmyAIykpCGIJAFFdMgOuUYmdiS30jrQuuGMGmv7rfawh+zuW0eOz29GyMGWqxC602DyeaSAA=
         private readonly PropertyInfo _source;
         private readonly PropertyInfo _destiny;
 
