@@ -4,6 +4,11 @@ using System.Collections.Generic;
 
 namespace CastForm.Collection
 {
+    /// <summary>
+    /// Lazy mapping between 2 IEnumerable
+    /// </summary>
+    /// <typeparam name="TSource">Source type</typeparam>
+    /// <typeparam name="TDestiny">Destiny type to create</typeparam>
     public class LazyEnumerableMapping<TSource, TDestiny> : IMap<IEnumerable<TSource>, IEnumerable<TDestiny>>
     {
         private readonly IMap<TSource, TDestiny> _map;
@@ -34,6 +39,10 @@ namespace CastForm.Collection
                 if (move)
                 {
                     Current = _map.Map(_source.Current);
+                }
+                else
+                {
+                    Current = default;
                 }
 
                 return move;

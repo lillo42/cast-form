@@ -5,6 +5,9 @@ using System.Reflection.Emit;
 
 namespace CastForm.Rules
 {
+    /// <summary>
+    /// Rule for map property when the are different but is .NET Type(int, long, decimal, DateTime e etc.)
+    /// </summary>
     public class DifferentNetTypeRule : IRuleMapper
     {
         private readonly PropertyInfo _source;
@@ -26,10 +29,12 @@ namespace CastForm.Rules
         {
             if (ShouldUseSameType(source.PropertyType, destiny.PropertyType))
             {
+                // based on https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYGYAE9MGFMiYCSAsgIYAOmA3qpvdlgMpgC2FEApgEKbkUAKFuy4BBTAGcA9gFcATgGNOAShp0GGmAHZMAO04B3TMI491G+rRQWbxACaYAvJNmLOAOiJ2ANOdv0AFU4AD2AnF3kldyDQvw0AXwBuP3jUVJRUVAxMMF1gTjkAMzIlYn5UKw0TLl5+ITZTcWlIlWSUdKysHGrOUQq/bNywrxpMAHNOYETJSen0zS6EAAZMGLDqcdmZqcx5hmyAIykpCGIJAFFdMgOuUYmdiS30jrQuuGMGmv7rfawIKV0Y3sdy2jx2e3o2Rgy1WIXWmweTzSQA=
                 SameTypeRule.Execute(il, source, destiny);
             }
             else
             {
+                // based on https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYGYAE9MGFMiYCSAsgIYAOmA3qpvdlgMpgC2FEApgEKbkUAKFuy4BBTAGcA9gFcATgGNOAShp0GGmAHZMAO04B3TMI491G+rRQWbxACaYAvHim6AbpznAAdABUpRLrA6HAC0vJK3kR2ygA05rb0vpwAHsBOkrKKnH6pwAkaAL4A3AmFqOUoqKgYmGBBngBmZErE/KhWGiZcvPxCbKbi4dnKpSiVNVg43ZyiHQm1EK4A5vY0mMucwMWSWzuVmlMIAAyYyWnrm9u71wcMtQBGUlIQxBIAorpkD1yXezf7CrVNBTODGAY9ebWe5YerpaJ/a4Sf53ei1GAnM55RE7ZG3CpAA=
                 UseConverter(il, source, destiny);
             }
         }

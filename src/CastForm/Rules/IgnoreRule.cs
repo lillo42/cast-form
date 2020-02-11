@@ -5,6 +5,9 @@ using System.Reflection.Emit;
 
 namespace CastForm.Rules
 {
+    /// <summary>
+    /// Ignore Property
+    /// </summary>
     public class IgnoreRule : IRuleMapper
     {
         private readonly MemberInfo _property;
