@@ -48,9 +48,9 @@ namespace CastForm
         /// Ignore Property
         /// </summary>
         /// <typeparam name="TMember"></typeparam>
-        /// <param name="source">property to be ignore</param>
+        /// <param name="destiny">property to be ignore</param>
         /// <returns></returns>
-        IMapperBuilder<TSource, TDestiny> Ignore<TMember>(Expression<Func<TSource, TMember>> source);
+        IMapperBuilder<TSource, TDestiny> Ignore<TMember>(Expression<Func<TDestiny, TMember>> destiny);
 
 
         /// <summary>

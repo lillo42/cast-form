@@ -4,7 +4,7 @@ namespace CastForm.Rules
 {
     internal static class ForRuleFactory
     {
-        public static IRuleMapper CreateRule(PropertyInfo source, PropertyInfo destiny)
+        public static IRuleMapper CreateRule(PropertyInfo destiny, PropertyInfo source)
         {
             if (source.PropertyType == destiny.PropertyType)
             {

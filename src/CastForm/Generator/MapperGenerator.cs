@@ -53,7 +53,7 @@ namespace CastForm.Generator
             var rules = GetAllRules(sourceProperties, destinyProperties);
             var fields = DefineField(typeBuilder, rules);
 
-            GenerateMap(generator, rules, fields, _destiny, sourceProperties);
+            GenerateMap(generator, rules, fields, _destiny, destinyProperties);
 
             CreateConstructor(typeBuilder, fields);
 
@@ -86,15 +86,15 @@ namespace CastForm.Generator
             IEnumerable<IRuleMapper> rules,
             IReadOnlyDictionary<Type, FieldBuilder> fields,
             Type destiny,
-            PropertyInfo[] sourceProperties)
+            PropertyInfo[] destinyProperties)
         {
 
             var localFields = DefineLocalField(generator, rules);
             generator.Emit(OpCodes.Newobj, destiny.GetConstructor(Type.EmptyTypes));
 
-            foreach (var sourceProperty in sourceProperties)
+            foreach (var destinyProperty in destinyProperties)
             {
-                var rule = rules.First(x => x.Match(sourceProperty));
+                var rule = rules.First(x => x.Match(destinyProperty));
                 rule.Execute(generator, fields, localFields);
             }
 
@@ -105,23 +105,23 @@ namespace CastForm.Generator
         private IEnumerable<IRuleMapper> GetAllRules(PropertyInfo[] sourceProperties, PropertyInfo[] destinyProperties)
         {
             var rules = new LinkedList<IRuleMapper>();
-            foreach (var sourceProperty in sourceProperties)
+            foreach (var destinyProperty in destinyProperties)
             {
-                var rule = _rules.FirstOrDefault(x => x.Match(sourceProperty));
+                var rule = _rules.FirstOrDefault(x => x.Match(destinyProperty));
                 if (rule != null)
                 {
                     rules.AddLast(rule);
                     continue;
                 }
 
-                var destinyProperty = destinyProperties.FirstOrDefault(x => x.Name == sourceProperty.Name);
+                var sourceProperty = sourceProperties.FirstOrDefault(x => x.Name == destinyProperty.Name);
 
-                if (destinyProperty == null)
+                if (sourceProperty == null)
                 {
                     continue;
                 }
 
-                rules.AddLast(ForRuleFactory.CreateRule(sourceProperty, destinyProperty));
+                rules.AddLast(ForRuleFactory.CreateRule(destinyProperty, sourceProperty));
             }
 
             return rules;

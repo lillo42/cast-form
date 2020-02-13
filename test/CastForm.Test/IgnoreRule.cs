@@ -18,7 +18,7 @@ namespace CastForm.Test
         {
             var mapper = new MapperBuilder()
                 .AddMapper<SimpleA, SimpleB>()
-                    .Ignore(x => x.Text)
+                    .Ignore(x => x.Value)
                 .Build();
 
             var a = _fixture.Create<SimpleA>();
