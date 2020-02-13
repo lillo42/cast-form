@@ -82,17 +82,17 @@ namespace CastForm
 
             var sourceProperty = ((source.Body as MemberExpression)!.Member as PropertyInfo)!;
             var destinyProperty = ((destiny.Body as MemberExpression)!.Member as PropertyInfo)!;
-            _rules.Add(ForRuleFactory.CreateRule(sourceProperty, destinyProperty));
+            _rules.Add(ForRuleFactory.CreateRule(destinyProperty, sourceProperty));
             return this;
         }
 
-        public IMapperBuilder<TSource, TDestiny> Ignore<TMember>(Expression<Func<TSource, TMember>> source)
+        public IMapperBuilder<TSource, TDestiny> Ignore<TMember>(Expression<Func<TDestiny, TMember>> destiny)
         {
-            if (source.Body.NodeType != ExpressionType.MemberAccess)
+            if (destiny.Body.NodeType != ExpressionType.MemberAccess)
             {
                 throw new NotSupportedException();
             }
-            var member = (MemberExpression)source.Body;
+            var member = (MemberExpression)destiny.Body;
             _rules.Add(new IgnoreRule(member.Member));
 
             return this;
