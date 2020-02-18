@@ -5,23 +5,23 @@ namespace Microsoft.Extensions.DependencyInjection.Extensions
 {
     public static class IServiceCollectionExtensions
     {
-        public static void AddCastFrom(this IServiceCollection service, Action<IMapperBuilder> mapper)
+        public static void AddCastFrom(this IServiceCollection service, Action<IMapperBuilder> mapperBuilder)
         {
             if (service == null)
             {
                 throw new ArgumentNullException(nameof(service));
             }
 
-            if (mapper == null)
+            if (mapperBuilder == null)
             {
-                throw new ArgumentNullException(nameof(mapper));
+                throw new ArgumentNullException(nameof(mapperBuilder));
             }
 
             service.TryAddSingleton<IMapper, Mapper>();
             
             var builder = new MapperBuilder(service);
-            mapper(builder);
-            ((IRegisterMap)builder).Register();
+            mapperBuilder(builder);
+            builder.Build();
         }
     }
 }

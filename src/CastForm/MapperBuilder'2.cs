@@ -10,22 +10,30 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CastForm
 {
-    public class MapperBuilder<TSource, TDestiny> : IMapperBuilder<TSource, TDestiny>, IRegisterMap
+    public class MapperBuilder<TSource, TDestiny> : IMapperBuilder<TSource, TDestiny>
     {
         private readonly ICollection<IRuleMapper> _rules = new List<IRuleMapper>();
         private readonly IMapperBuilder _parent;
         private readonly IServiceCollection _service;
+        private readonly MapperGenerator _generator;
 
         public MapperBuilder(IMapperBuilder parent, IServiceCollection service)
         {
             _parent = parent ?? throw new ArgumentNullException(nameof(parent));
             _service = service ?? throw new ArgumentNullException(nameof(service));
+            _generator = new MapperGenerator(typeof(TSource), typeof(TDestiny), _rules);
         }
 
-        public IMapperBuilder<TDestiny, TSource> Reverse()
+        public virtual IMapperBuilder<TDestiny, TSource> Reverse()
             => AddMapper<TDestiny, TSource>();
 
-        public IMapperBuilder<TSource1, TDestiny1> AddMapper<TSource1, TDestiny1>()
+        public virtual Type Source => typeof(TSource);
+        public virtual Type Destiny => typeof(TDestiny);
+
+        public IEnumerable<IRuleMapper> Rules 
+            => _generator.CreateRules();
+
+        public virtual IMapperBuilder<TSource1, TDestiny1> AddMapper<TSource1, TDestiny1>()
         {
             var mapper = new MapperBuilder<TSource1, TDestiny1>(this, _service);
             _parent.AddMapper(mapper);
@@ -38,16 +46,15 @@ namespace CastForm
             return this;
         }
 
-        void IRegisterMap.Register()
-            => Register();
+        IMapper IMapperBuilder.Build() 
+            => _parent.Build();
 
-        private void Register()
+        public virtual void Register(IEnumerable<MapperProperty> mapperProperties)
         {
-            var mapper = new MapperGenerator(typeof(TSource), typeof(TDestiny), _rules)
-                .Generate();
+            var mapper = _generator.Generate();
 
             _service.TryAddSingleton(typeof(IMap<TSource, TDestiny>), mapper);
-            
+
             var enumerable = typeof(LazyEnumerableMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
             _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, IEnumerable<TDestiny>>), enumerable);
 
@@ -67,17 +74,18 @@ namespace CastForm
             _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, ISet<TDestiny>>), iSet);
         }
 
-        IMapper IMapperBuilder.Build()
+        public virtual IMapperBuilder<TSource, TDestiny> For<TDestinyMember, TSourceMember>(Expression<Func<TDestiny, TDestinyMember>> destiny, Expression<Func<TSource, TSourceMember>> source)
         {
-            Register();
-            return _parent.Build();
-        }
 
-        public IMapperBuilder<TSource, TDestiny> For<TDestinyMember, TSourceMember>(Expression<Func<TDestiny, TDestinyMember>> destiny, Expression<Func<TSource, TSourceMember>> source)
-        {
-            if(source.Body.NodeType != ExpressionType.MemberAccess && destiny.Body.NodeType != ExpressionType.MemberAccess)
+            if(destiny.Body.NodeType != ExpressionType.MemberAccess)
             {
                 throw new NotSupportedException();
+            }
+
+
+            if(source.Body.NodeType != ExpressionType.MemberAccess)
+            {
+                throw new NotImplementedException();
             }
 
             var sourceProperty = ((source.Body as MemberExpression)!.Member as PropertyInfo)!;
@@ -86,18 +94,17 @@ namespace CastForm
             return this;
         }
 
-        public IMapperBuilder<TSource, TDestiny> Ignore<TMember>(Expression<Func<TDestiny, TMember>> destiny)
+        public virtual IMapperBuilder<TSource, TDestiny> Ignore<TMember>(Expression<Func<TDestiny, TMember>> destiny)
         {
             if (destiny.Body.NodeType != ExpressionType.MemberAccess)
             {
                 throw new NotSupportedException();
             }
+
             var member = (MemberExpression)destiny.Body;
             _rules.Add(new IgnoreRule(member.Member));
 
             return this;
         }
-
-        
     }
 }
