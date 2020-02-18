@@ -55,8 +55,11 @@ namespace CastForm.Generator
 
             var rules = CreateRules();
             var fields = DefineField(typeBuilder, rules);
+            var localFields = DefineLocalField(generator, rules);
 
-            GenerateMap(generator, rules, fields, _destiny, _destinyProperties);
+            BeforeExecuteRule(generator, rules, fields, localFields);
+            GenerateMap(generator, rules, fields, localFields);
+            AfterExecuteRule(generator, rules, fields, localFields);
 
             CreateConstructor(typeBuilder, fields);
 
@@ -84,17 +87,36 @@ namespace CastForm.Generator
             }
         }
 
-        private static void GenerateMap(ILGenerator generator,
+        private static void BeforeExecuteRule(ILGenerator il,
             IEnumerable<IRuleMapper> rules,
             IReadOnlyDictionary<string, FieldBuilder> fields,
-            Type destiny,
-            PropertyInfo[] destinyProperties)
+            IReadOnlyDictionary<Type, LocalBuilder> localFields)
         {
+            foreach (var rule in rules.Where(x => x is IBeforeRule).Cast<IBeforeRule>())
+            {
+                rule.Execute(il, fields, localFields);
+            }
+        }
 
-            var localFields = DefineLocalField(generator, rules);
-            generator.Emit(OpCodes.Newobj, destiny.GetConstructor(Type.EmptyTypes));
+        private static void AfterExecuteRule(ILGenerator il,
+            IEnumerable<IRuleMapper> rules,
+            IReadOnlyDictionary<string, FieldBuilder> fields,
+            IReadOnlyDictionary<Type, LocalBuilder> localFields)
+        {
+            foreach (var rule in rules.Where(x => x is IAfterRule).Cast<IAfterRule>())
+            {
+                rule.Execute(il, fields, localFields);
+            }
+        }
 
-            foreach (var destinyProperty in destinyProperties)
+        private void GenerateMap(ILGenerator generator,
+            IEnumerable<IRuleMapper> rules,
+            IReadOnlyDictionary<string, FieldBuilder> fields,
+            IReadOnlyDictionary<Type, LocalBuilder> localFields)
+        {
+            generator.Emit(OpCodes.Newobj, _destiny.GetConstructor(Type.EmptyTypes));
+
+            foreach (var destinyProperty in _destinyProperties)
             {
                 var rule = rules.First(x => x.Match(destinyProperty));
                 rule.Execute(generator, fields, localFields);
