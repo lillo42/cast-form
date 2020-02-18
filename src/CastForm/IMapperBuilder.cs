@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace CastForm
@@ -8,6 +9,21 @@ namespace CastForm
     /// </summary>
     public interface IMapperBuilder
     {
+        /// <summary>
+        /// Source Type
+        /// </summary>
+        Type Source { get; }
+
+        /// <summary>
+        /// Destiny type
+        /// </summary>
+        Type Destiny { get; }
+
+        /// <summary>
+        /// Rules mapper
+        /// </summary>
+        IEnumerable<IRuleMapper> Rules { get; }
+
         /// <summary>
         /// Add Mapper
         /// </summary>
@@ -58,10 +74,5 @@ namespace CastForm
         /// </summary>
         /// <returns></returns>
         IMapperBuilder<TDestiny, TSource> Reverse();
-    }
-
-    internal interface IRegisterMap
-    {
-        void Register();
     }
 }

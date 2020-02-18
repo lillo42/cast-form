@@ -10,22 +10,30 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CastForm
 {
-    public class MapperBuilder<TSource, TDestiny> : IMapperBuilder<TSource, TDestiny>, IRegisterMap
+    public class MapperBuilder<TSource, TDestiny> : IMapperBuilder<TSource, TDestiny>
     {
         private readonly ICollection<IRuleMapper> _rules = new List<IRuleMapper>();
         private readonly IMapperBuilder _parent;
         private readonly IServiceCollection _service;
+        private readonly MapperGenerator _generator;
 
         public MapperBuilder(IMapperBuilder parent, IServiceCollection service)
         {
             _parent = parent ?? throw new ArgumentNullException(nameof(parent));
             _service = service ?? throw new ArgumentNullException(nameof(service));
+            _generator = new MapperGenerator(typeof(TSource), typeof(TDestiny), _rules);
         }
 
-        public IMapperBuilder<TDestiny, TSource> Reverse()
+        public virtual IMapperBuilder<TDestiny, TSource> Reverse()
             => AddMapper<TDestiny, TSource>();
 
-        public IMapperBuilder<TSource1, TDestiny1> AddMapper<TSource1, TDestiny1>()
+        public virtual Type Source => typeof(TSource);
+        public virtual Type Destiny => typeof(TDestiny);
+
+        public IEnumerable<IRuleMapper> Rules 
+            => _generator.CreateRules();
+
+        public virtual IMapperBuilder<TSource1, TDestiny1> AddMapper<TSource1, TDestiny1>()
         {
             var mapper = new MapperBuilder<TSource1, TDestiny1>(this, _service);
             _parent.AddMapper(mapper);
@@ -38,13 +46,10 @@ namespace CastForm
             return this;
         }
 
-        void IRegisterMap.Register()
-            => Register();
 
         private void Register()
         {
-            var mapper = new MapperGenerator(typeof(TSource), typeof(TDestiny), _rules)
-                .Generate();
+            var mapper = _generator.Generate();
 
             _service.TryAddSingleton(typeof(IMap<TSource, TDestiny>), mapper);
             
@@ -73,7 +78,7 @@ namespace CastForm
             return _parent.Build();
         }
 
-        public IMapperBuilder<TSource, TDestiny> For<TDestinyMember, TSourceMember>(Expression<Func<TDestiny, TDestinyMember>> destiny, Expression<Func<TSource, TSourceMember>> source)
+        public virtual IMapperBuilder<TSource, TDestiny> For<TDestinyMember, TSourceMember>(Expression<Func<TDestiny, TDestinyMember>> destiny, Expression<Func<TSource, TSourceMember>> source)
         {
             if(source.Body.NodeType != ExpressionType.MemberAccess && destiny.Body.NodeType != ExpressionType.MemberAccess)
             {
@@ -86,7 +91,7 @@ namespace CastForm
             return this;
         }
 
-        public IMapperBuilder<TSource, TDestiny> Ignore<TMember>(Expression<Func<TDestiny, TMember>> destiny)
+        public virtual IMapperBuilder<TSource, TDestiny> Ignore<TMember>(Expression<Func<TDestiny, TMember>> destiny)
         {
             if (destiny.Body.NodeType != ExpressionType.MemberAccess)
             {
@@ -97,7 +102,5 @@ namespace CastForm
 
             return this;
         }
-
-        
     }
 }

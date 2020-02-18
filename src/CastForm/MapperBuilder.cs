@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CastForm
 {
-    public class MapperBuilder : IMapperBuilder, IRegisterMap
+    public class MapperBuilder : IMapperBuilder
     {
         private readonly IServiceCollection _service;
-        private readonly ICollection<IMapperBuilder> _mappers;
+        public ICollection<IMapperBuilder> Mappers { get; }
+
         public MapperBuilder()
             : this(new ServiceCollection())
         {
@@ -18,32 +20,32 @@ namespace CastForm
         public MapperBuilder(IServiceCollection service)
         {
             _service = service ?? throw new ArgumentNullException(nameof(service));
-            _mappers = new LinkedList<IMapperBuilder>();
+            Mappers = new LinkedList<IMapperBuilder>();
             _service.TryAddSingleton<IMapper, Mapper>();
         }
+
+        public Type Source => default!;
+        public Type Destiny => default!;
+
+        public IEnumerable<IRuleMapper> Rules => Enumerable.Empty<IRuleMapper>();
 
         public virtual IMapperBuilder<TSource, TDestiny> AddMapper<TSource, TDestiny>()
         {
             var mapper = new MapperBuilder<TSource, TDestiny>(this, _service);
-            _mappers.Add(mapper);
+            Mappers.Add(mapper);
             return mapper;
         }
 
         public virtual IMapperBuilder AddMapper(IMapperBuilder mapperBuilder)
         {
-            _mappers.Add(mapperBuilder);
+            Mappers.Add(mapperBuilder);
             return this;
         }
 
-        public virtual IMapper Build() 
-            => _service.BuildServiceProvider()
-                .GetRequiredService<IMapper>();
-        void IRegisterMap.Register()
+        public virtual IMapper Build()
         {
-            foreach (var mapper in _mappers)
-            {
-                ((IRegisterMap)mapper).Register();
-            }
+            return _service.BuildServiceProvider()
+                .GetRequiredService<IMapper>();
         }
     }
 }

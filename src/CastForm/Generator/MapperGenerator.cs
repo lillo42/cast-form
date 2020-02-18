@@ -10,10 +10,13 @@ namespace CastForm.Generator
     /// <summary>
     /// Generate Map for define source and destiny.
     /// </summary>
-    internal class MapperGenerator
+    public class MapperGenerator
     {
         private readonly Type _source;
         private readonly Type _destiny;
+
+        private readonly PropertyInfo[] _sourceProperties;
+        private readonly PropertyInfo[] _destinyProperties;
         private readonly IEnumerable<IRuleMapper> _rules;
 
         public MapperGenerator(Type source, Type destiny, IEnumerable<IRuleMapper> rules)
@@ -21,6 +24,9 @@ namespace CastForm.Generator
             _source = source ?? throw new ArgumentNullException(nameof(source));
             _destiny = destiny ?? throw new ArgumentNullException(nameof(destiny));
             _rules = rules ?? throw new ArgumentNullException(nameof(rules));
+
+            _sourceProperties = source.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            _destinyProperties = destiny.GetProperties(BindingFlags.Public | BindingFlags.Instance);
         }
 
         /// <summary>
@@ -47,13 +53,10 @@ namespace CastForm.Generator
 
             var generator = methodBuilder.GetILGenerator();
 
-            var sourceProperties = _source.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            var destinyProperties = _destiny.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            var rules = GetAllRules(sourceProperties, destinyProperties);
+            var rules = CreateRules();
             var fields = DefineField(typeBuilder, rules);
 
-            GenerateMap(generator, rules, fields, _destiny, destinyProperties);
+            GenerateMap(generator, rules, fields, _destiny, _destinyProperties);
 
             CreateConstructor(typeBuilder, fields);
 
@@ -81,7 +84,6 @@ namespace CastForm.Generator
             }
         }
 
-
         private static void GenerateMap(ILGenerator generator,
             IEnumerable<IRuleMapper> rules,
             IReadOnlyDictionary<string, FieldBuilder> fields,
@@ -101,8 +103,10 @@ namespace CastForm.Generator
             generator.Emit(OpCodes.Ret);
         }
 
+        public IEnumerable<IRuleMapper> CreateRules() 
+            => CreateRules(_sourceProperties, _destinyProperties);
 
-        private IEnumerable<IRuleMapper> GetAllRules(PropertyInfo[] sourceProperties, PropertyInfo[] destinyProperties)
+        private IEnumerable<IRuleMapper> CreateRules(PropertyInfo[] sourceProperties, PropertyInfo[] destinyProperties)
         {
             var rules = new LinkedList<IRuleMapper>();
             foreach (var destinyProperty in destinyProperties)
