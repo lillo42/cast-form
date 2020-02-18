@@ -46,13 +46,15 @@ namespace CastForm
             return this;
         }
 
+        IMapper IMapperBuilder.Build() 
+            => _parent.Build();
 
-        private void Register()
+        public virtual void Register(IEnumerable<MapperProperty> mapperProperties)
         {
             var mapper = _generator.Generate();
 
             _service.TryAddSingleton(typeof(IMap<TSource, TDestiny>), mapper);
-            
+
             var enumerable = typeof(LazyEnumerableMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
             _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, IEnumerable<TDestiny>>), enumerable);
 
@@ -72,17 +74,18 @@ namespace CastForm
             _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, ISet<TDestiny>>), iSet);
         }
 
-        IMapper IMapperBuilder.Build()
-        {
-            Register();
-            return _parent.Build();
-        }
-
         public virtual IMapperBuilder<TSource, TDestiny> For<TDestinyMember, TSourceMember>(Expression<Func<TDestiny, TDestinyMember>> destiny, Expression<Func<TSource, TSourceMember>> source)
         {
-            if(source.Body.NodeType != ExpressionType.MemberAccess && destiny.Body.NodeType != ExpressionType.MemberAccess)
+
+            if(destiny.Body.NodeType != ExpressionType.MemberAccess)
             {
                 throw new NotSupportedException();
+            }
+
+
+            if(source.Body.NodeType != ExpressionType.MemberAccess)
+            {
+                throw new NotImplementedException();
             }
 
             var sourceProperty = ((source.Body as MemberExpression)!.Member as PropertyInfo)!;
@@ -97,6 +100,7 @@ namespace CastForm
             {
                 throw new NotSupportedException();
             }
+
             var member = (MemberExpression)destiny.Body;
             _rules.Add(new IgnoreRule(member.Member));
 

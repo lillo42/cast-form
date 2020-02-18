@@ -45,6 +45,11 @@ namespace CastForm
         /// </summary>
         /// <returns></returns>
         IMapper Build();
+
+        /// <summary>
+        /// Register Create Type in <see cref="IServiceCollection"/>
+        /// </summary>
+        void Register(IEnumerable<MapperProperty> mapperProperties);
     }
 
     public interface IMapperBuilder<TSource, TDestiny> : IMapperBuilder

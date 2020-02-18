@@ -44,8 +44,31 @@ namespace CastForm
 
         public virtual IMapper Build()
         {
+            var mappers = new LinkedList<MapperProperty>();
+
+            foreach (var mapper in Mappers)
+            {
+                foreach (var rule in mapper.Rules)
+                {
+                    mappers.AddLast(new MapperProperty(mapper.Destiny, rule.DestinyProperty, mapper.Source, rule.SourceProperty));
+                }
+            }
+
+            return Build(mappers);
+        }
+
+        public virtual IMapper Build(IEnumerable<MapperProperty> mapperProperties)
+        {
+            foreach (var mapper in Mappers)
+            {
+                mapper.Register(mapperProperties);
+            }
+
             return _service.BuildServiceProvider()
                 .GetRequiredService<IMapper>();
         }
+
+        public virtual void Register(IEnumerable<MapperProperty> mapperProperties) 
+            => Build(mapperProperties);
     }
 }

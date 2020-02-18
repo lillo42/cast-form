@@ -21,10 +21,7 @@ namespace Microsoft.Extensions.DependencyInjection.Extensions
             
             var builder = new MapperBuilder(service);
             mapperBuilder(builder);
-
-            foreach (var mapper in builder.Mappers)
-            {
-            }
+            builder.Build();
         }
     }
 }
