@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CastForm.Rules
 {
@@ -10,6 +11,6 @@ namespace CastForm.Rules
         /// <summary>
         /// Field use in class
         /// </summary>
-        Type Field { get; }
+        IEnumerable<(string name, Type type)>  Fields { get; }
     }
 }
