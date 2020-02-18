@@ -35,14 +35,14 @@ namespace CastForm.Generator
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
 
             var moduleBuilder = assemblyBuilder.DefineDynamicModule($"{typeName}Module");
-            const TypeAttributes typeAttributes = TypeAttributes.Class| TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.BeforeFieldInit;
+            const TypeAttributes typeAttributes = TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.BeforeFieldInit;
 
             var mapper = typeof(IMap<,>).MakeGenericType(new[] { _source, _destiny });
             var interfaces = new[] { mapper, typeof(IMap) };
 
             var typeBuilder = moduleBuilder.DefineType(typeName, typeAttributes, null, interfaces);
-            var methodBuilder = typeBuilder.DefineMethod(nameof(IMapper.Map), 
-                MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual, 
+            var methodBuilder = typeBuilder.DefineMethod(nameof(IMapper.Map),
+                MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual,
                 _destiny, new[] { _source });
 
             var generator = methodBuilder.GetILGenerator();
@@ -60,17 +60,17 @@ namespace CastForm.Generator
             return typeBuilder.CreateType();
         }
 
-        private static void CreateConstructor(TypeBuilder typeBuilder, IReadOnlyDictionary<Type, FieldBuilder> fields)
+        private static void CreateConstructor(TypeBuilder typeBuilder, IReadOnlyDictionary<string, FieldBuilder> fields)
         {
             if (fields.Any())
             {
                 var ctor = typeBuilder.DefineConstructor(MethodAttributes.Public,
                     CallingConventions.Standard,
-                    fields.Keys.ToArray());
+                    fields.Values.Select(x => x.FieldType).ToArray());
 
                 var il = ctor.GetILGenerator();
                 var counter = 1;
-                foreach (var (type, field) in fields)
+                foreach (var (_, field) in fields)
                 {
                     il.Emit(OpCodes.Ldarg_0);
                     il.Emit(OpCodes.Ldarg_S, counter++);
@@ -84,7 +84,7 @@ namespace CastForm.Generator
 
         private static void GenerateMap(ILGenerator generator,
             IEnumerable<IRuleMapper> rules,
-            IReadOnlyDictionary<Type, FieldBuilder> fields,
+            IReadOnlyDictionary<string, FieldBuilder> fields,
             Type destiny,
             PropertyInfo[] destinyProperties)
         {
@@ -127,17 +127,18 @@ namespace CastForm.Generator
             return rules;
         }
 
-        private static IReadOnlyDictionary<Type, FieldBuilder> DefineField(TypeBuilder builder, IEnumerable<IRuleMapper> rules)
+        private static IReadOnlyDictionary<string, FieldBuilder> DefineField(TypeBuilder builder, IEnumerable<IRuleMapper> rules)
         {
-            var fields = new Dictionary<Type, FieldBuilder>();
+            var fields = new Dictionary<string, FieldBuilder>();
             var needLocalFields = rules.Where(x => x is IRuleNeedField).Cast<IRuleNeedField>();
             foreach (var localField in needLocalFields)
             {
-                if (!fields.ContainsKey(localField.Field))
+                foreach (var (name, type) in localField.Fields)
                 {
-                    var args = localField.Field.GetGenericArguments();
-                    var fieldName = $"_map{args[0].Name}{args[1].Name}";
-                    fields.Add(localField.Field, builder.DefineField(fieldName, localField.Field, FieldAttributes.Private | FieldAttributes.InitOnly));
+                    if (!fields.ContainsKey(name))
+                    {
+                        fields.Add(name, builder.DefineField(name, type, FieldAttributes.Private | FieldAttributes.InitOnly));
+                    }
                 }
             }
 
@@ -157,7 +158,7 @@ namespace CastForm.Generator
                         fields.Add(field, generator.DeclareLocal(field));
                     }
                 }
-                
+
             }
 
             return fields;

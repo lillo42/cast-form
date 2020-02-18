@@ -24,7 +24,7 @@ namespace CastForm.Rules
         public PropertyInfo? SourceProperty { get; }
 
 
-        public void Execute(ILGenerator il, IReadOnlyDictionary<Type, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields)
+        public void Execute(ILGenerator il, IReadOnlyDictionary<string, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields)
         {
             // based on: https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYGYAE9MGFMDeqmJ2WAymALYAOEApgEKYCyAFJbQwIKYDOAewCuAJwDG9AJSFipOTADsmAHb0A7pk50mMlHP2kAckKoAjeiMwBefsPH0AdAEkAJg4ASAQz4A1TxCF6TAB+FXVMCAFlAHNgtlwogDcLYAcAFQEnZWAANgAWNkFRCWcXSWkQFSEICFkDAF8AbjrMetQ2lFQMbDhNam1uVCI9Um6wbNDXQkxo+mBG/jmFjvksPgALARFgULT6AA9gadn5xdOOjq6sHC0GRiGW7siY0OMzC2Ols+XHrFMAT2A9FCfgCQQIMy+fC+FyAA=
             var constructor = typeof(Nullable<>).MakeGenericType(Nullable.GetUnderlyingType(DestinyProperty.PropertyType)).GetConstructors()[0];
