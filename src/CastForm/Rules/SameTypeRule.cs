@@ -11,20 +11,19 @@ namespace CastForm.Rules
     public class SameTypeRule : IRuleMapper
     {
         // based on https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYGYAE9MGFMiYCSAsgIYAOmA3qpvdlgMpgC2FEApgEKbkUAKFuy4BBTAGcA9gFcATgGNOAShp0GGmAHZMAO04B3TMI491G+rRQWbxACaYAvJNmLOAOiJ2ANOdv0AFU4AD2AnF3kldyDQvw0AXwBuP3jUVJRUVAxMMF1gTjkAMzIlYn5UKw0TLl5+ITZTcWlIlWSUdKysHGrOUQq/bNywrxpMAHNOYETJSen0zS6EAAZMGLDqcdmZqcx5hmyAIykpCGIJAFFdMgOuUYmdiS30jrQuuGMGmv7rfawh+zuW0eOz29GyMGWqxC602DyeaSAA=
-        private readonly PropertyInfo _source;
-        private readonly PropertyInfo _destiny;
 
         public SameTypeRule(MemberInfo source, MemberInfo destiny)
         {
-            _source = source as PropertyInfo ?? throw new ArgumentNullException(nameof(source));
-            _destiny = destiny as PropertyInfo ?? throw new ArgumentNullException(nameof(destiny));
+            SourceProperty = source as PropertyInfo ?? throw new ArgumentNullException(nameof(source));
+            DestinyProperty = destiny as PropertyInfo ?? throw new ArgumentNullException(nameof(destiny));
         }
 
-        public bool Match(PropertyInfo property) 
-            => _destiny.Equals(property);
+        public PropertyInfo DestinyProperty { get; }
+
+        public PropertyInfo? SourceProperty { get; }
 
         public void Execute(ILGenerator il, IReadOnlyDictionary<Type, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields)
-            => Execute(il, _source, _destiny);
+            => Execute(il, SourceProperty!, DestinyProperty);
 
         internal static void Execute(ILGenerator il, PropertyInfo source, PropertyInfo destiny)
         {

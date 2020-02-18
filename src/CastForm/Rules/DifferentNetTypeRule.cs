@@ -10,20 +10,18 @@ namespace CastForm.Rules
     /// </summary>
     public class DifferentNetTypeRule : IRuleMapper
     {
-        private readonly PropertyInfo _source;
-        private readonly PropertyInfo _destiny;
-
         public DifferentNetTypeRule(MemberInfo source, MemberInfo destiny)
         {
-            _source = source as PropertyInfo ?? throw new ArgumentNullException(nameof(source));
-            _destiny = destiny as PropertyInfo ?? throw new ArgumentNullException(nameof(destiny));
+            SourceProperty = source as PropertyInfo ?? throw new ArgumentNullException(nameof(source));
+            DestinyProperty = destiny as PropertyInfo ?? throw new ArgumentNullException(nameof(destiny));
         }
 
-        public bool Match(PropertyInfo property)
-            => _destiny.Equals(property);
+        public PropertyInfo DestinyProperty { get; }
+
+        public PropertyInfo? SourceProperty { get; }
 
         public void Execute(ILGenerator il, IReadOnlyDictionary<Type, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields)
-            => Execute(il, _source, _destiny);
+            => Execute(il, SourceProperty!, DestinyProperty);
 
         internal static void Execute(ILGenerator il, PropertyInfo source, PropertyInfo destiny)
         {

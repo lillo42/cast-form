@@ -11,27 +11,24 @@ namespace CastForm.Rules
     /// </summary>
     public class NullableRuleForDifferentTypeWhenOneIsNullable : IRuleMapper, IRuleNeedLocalField
     {
-        private readonly PropertyInfo _source;
-        private readonly PropertyInfo _destiny;
-
         public NullableRuleForDifferentTypeWhenOneIsNullable(MemberInfo source, MemberInfo destiny)
         {
-            _source = source as PropertyInfo ?? throw new ArgumentNullException(nameof(source));
-            _destiny = destiny as PropertyInfo ?? throw new ArgumentNullException(nameof(destiny));
+            SourceProperty = source as PropertyInfo ?? throw new ArgumentNullException(nameof(source));
+            DestinyProperty = destiny as PropertyInfo ?? throw new ArgumentNullException(nameof(destiny));
 
-            if (_source.PropertyType.IsNullable())
+            if (SourceProperty.PropertyType.IsNullable())
             {
-                LocalFields = new [] { _source.PropertyType } ;
+                LocalFields = new [] { SourceProperty.PropertyType } ;
             }
         }
 
-        public bool Match(PropertyInfo property)
-            => _destiny.Equals(property);
+        public PropertyInfo DestinyProperty { get; }
 
+        public PropertyInfo? SourceProperty { get; }
 
         public void Execute(ILGenerator il, IReadOnlyDictionary<Type, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields)
         {
-            if (_destiny.PropertyType.IsNullable())
+            if (DestinyProperty.PropertyType.IsNullable())
             {
                 // based on https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYGYAE9MGFMiYCSAsgIYAOmA3qpvdlgMpgC2FEApgEKbkUAKFuy4BBTAGcA9gFcATgGNOAShp0GGmAHZMAO04B3TMI491G+rRQWbxACaYAvHim6AbpznAAdABUpRLrA6HAC0vJK3kR2ygA05hYAvgDcCYmo6SioqBiYYEGeAGZkSsT8qFYaJly8/EJspuLhiiqpKJk5WDjVnKIVCbkQrgDm9jSYw5zAyZJTM5kdaF1wxg01/dYMufnAAPxj1BNzs9OYC0A===
                 GenerateMapWithDestinyAsNullable(il);
@@ -45,32 +42,31 @@ namespace CastForm.Rules
         
         private void GenerateMapWithDestinyAsNullable(ILGenerator il)
         {
-            var constructor = typeof(Nullable<>).MakeGenericType(Nullable.GetUnderlyingType(_destiny.PropertyType)).GetConstructors()[0];
-            var convert = typeof(Convert).GetRuntimeMethod(GetConvertTo(_destiny.PropertyType), new[] { _source.PropertyType });
+            var constructor = typeof(Nullable<>).MakeGenericType(Nullable.GetUnderlyingType(DestinyProperty.PropertyType)).GetConstructors()[0];
+            var convert = typeof(Convert).GetRuntimeMethod(GetConvertTo(DestinyProperty.PropertyType), new[] { SourceProperty!.PropertyType });
 
             il.Emit(OpCodes.Dup);
             il.Emit(OpCodes.Ldarg_1);
-            il.EmitCall(OpCodes.Callvirt, _source.GetMethod, null);
+            il.EmitCall(OpCodes.Callvirt, SourceProperty.GetMethod, null);
             il.EmitCall(OpCodes.Call, convert, null);
             il.Emit(OpCodes.Newobj, constructor);
-            il.EmitCall(OpCodes.Callvirt, _destiny.SetMethod, null);
+            il.EmitCall(OpCodes.Callvirt, DestinyProperty.SetMethod, null);
         }
-
 
         private void GenerateMapWithDestinyAsNotNullable(ILGenerator il, IReadOnlyDictionary<Type, LocalBuilder> localField)
         {
-            var getValueOrDefault = _source.PropertyType.GetMethod("GetValueOrDefault", Type.EmptyTypes);
-            var field = localField[_source.PropertyType];
-            var convert = typeof(Convert).GetRuntimeMethod(GetConvertTo(_destiny.PropertyType), new[] { _source.PropertyType.GetUnderlyingType() });
+            var getValueOrDefault = SourceProperty!.PropertyType.GetMethod("GetValueOrDefault", Type.EmptyTypes);
+            var field = localField[SourceProperty.PropertyType];
+            var convert = typeof(Convert).GetRuntimeMethod(GetConvertTo(DestinyProperty.PropertyType), new[] { SourceProperty.PropertyType.GetUnderlyingType() });
 
             il.Emit(OpCodes.Dup);
             il.Emit(OpCodes.Ldarg_1);
-            il.EmitCall(OpCodes.Callvirt, _source.GetMethod, null);
+            il.EmitCall(OpCodes.Callvirt, SourceProperty.GetMethod, null);
             il.Emit(OpCodes.Stloc_S, field.LocalIndex);
             il.Emit(OpCodes.Ldloca_S, field.LocalIndex);
             il.EmitCall(OpCodes.Call, getValueOrDefault, null);
             il.EmitCall(OpCodes.Call, convert, null);
-            il.EmitCall(OpCodes.Callvirt, _destiny.SetMethod, null);
+            il.EmitCall(OpCodes.Callvirt, DestinyProperty.SetMethod, null);
         }
 
         private static string GetConvertTo(Type type)

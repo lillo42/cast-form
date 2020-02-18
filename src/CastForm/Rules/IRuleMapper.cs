@@ -10,12 +10,24 @@ namespace CastForm
     /// </summary>
     public interface IRuleMapper
     {
+
+        /// <summary>
+        /// Property Destiny
+        /// </summary>
+        PropertyInfo DestinyProperty { get; }
+
+        /// <summary>
+        /// Property Source
+        /// </summary>
+        PropertyInfo? SourceProperty { get; }
+
         /// <summary>
         /// If that rule can be applied
         /// </summary>
         /// <param name="property"></param>
         /// <returns></returns>
-        bool Match(PropertyInfo property);
+        bool Match(PropertyInfo property)
+            => DestinyProperty.Equals(property);
 
         /// <summary>
         /// Execute rule
