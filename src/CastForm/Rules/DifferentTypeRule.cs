@@ -25,13 +25,10 @@ namespace CastForm.Rules
             var sourceType = SourceProperty!.PropertyType;
             if (sourceType.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
             {
-                fields.AddLast((_mapName, typeof(IEnumerable<>).MakeGenericType(sourceType.GetGenericArguments()[0])));
-            }
-            else
-            {
-                fields.AddLast((_mapName, typeof(IMap<,>).MakeGenericType(sourceType, DestinyProperty.PropertyType)));
+                sourceType = typeof(IEnumerable<>).MakeGenericType(sourceType.GetGenericArguments()[0]);
             }
 
+            fields.AddLast((_mapName, typeof(IMap<,>).MakeGenericType(sourceType, DestinyProperty.PropertyType)));
             Fields = fields;
         }
 
@@ -42,7 +39,7 @@ namespace CastForm.Rules
         public void Execute(ILGenerator il, IReadOnlyDictionary<string, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields)
         {
             var builder = fields[_mapName];
-            var mapMethod = builder.FieldType.GetMethod("Map", BindingFlags.Public | BindingFlags.Instance);
+            var mapMethod = builder.FieldType.GetMethod("Map");
 
             il.Emit(OpCodes.Dup);
             il.Emit(OpCodes.Ldarg_0);
