@@ -18,7 +18,8 @@ namespace Microsoft.Extensions.DependencyInjection.Extensions
             }
 
             service.TryAddSingleton<IMapper, Mapper>();
-            
+            service.TryAddSingleton<Counter>();
+
             var builder = new MapperBuilder(service);
             mapperBuilder(builder);
             builder.Build();

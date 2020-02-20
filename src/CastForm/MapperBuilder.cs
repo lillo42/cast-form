@@ -22,6 +22,7 @@ namespace CastForm
             _service = service ?? throw new ArgumentNullException(nameof(service));
             Mappers = new LinkedList<IMapperBuilder>();
             _service.TryAddSingleton<IMapper, Mapper>();
+            _service.TryAddSingleton<Counter>();
         }
 
         public Type Source => default!;

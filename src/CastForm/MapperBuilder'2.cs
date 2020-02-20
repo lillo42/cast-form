@@ -51,7 +51,7 @@ namespace CastForm
 
         public virtual void Register(IEnumerable<MapperProperty> mapperProperties)
         {
-            var mapper = _generator.Generate();
+            var mapper = _generator.Generate(mapperProperties);
 
             _service.TryAddSingleton(typeof(IMap<TSource, TDestiny>), mapper);
 

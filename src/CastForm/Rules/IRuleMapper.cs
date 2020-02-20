@@ -35,6 +35,6 @@ namespace CastForm
         /// <param name="il"></param>
         /// <param name="fields"></param>
         /// <param name="localFields"></param>
-        void Execute(ILGenerator il, IReadOnlyDictionary<string, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields);
+        void Execute(ILGenerator il, IReadOnlyDictionary<string, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields, IEnumerable<MapperProperty> mapperProperties);
     }
 }
