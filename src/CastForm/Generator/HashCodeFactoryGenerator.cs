@@ -72,10 +72,10 @@ namespace CastForm.Generator
 
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldc_I4_S, type.GetHashCode());
-            il.EmitCall(OpCodes.Call, _threadCurrent, Type.EmptyTypes);
-            il.EmitCall(OpCodes.Callvirt, _threadId, Type.EmptyTypes);
-            il.EmitCall(OpCodes.Call, _taskId, Type.EmptyTypes);
-            il.EmitCall(OpCodes.Call, hashCombine, Type.EmptyTypes);
+            il.EmitCall(OpCodes.Call, _threadCurrent, null);
+            il.EmitCall(OpCodes.Callvirt, _threadId, null);
+            il.EmitCall(OpCodes.Call, _taskId, null);
+            il.EmitCall(OpCodes.Call, hashCombine, null);
             il.Emit(OpCodes.Ret);
         }
 
@@ -115,16 +115,16 @@ namespace CastForm.Generator
                 }
                 isFirst = false;
 
-                il.EmitCall(OpCodes.Call, hashCodeFun, Type.EmptyTypes);
+                il.EmitCall(OpCodes.Call, hashCodeFun, null);
             }
 
             var hashCodeFinal = hashCodes[3].MakeGenericMethod(type, typeof(int), typeof(int?), typeof(int));
 
-            il.EmitCall(OpCodes.Call, _threadCurrent, Type.EmptyTypes);
-            il.EmitCall(OpCodes.Callvirt, _threadId, Type.EmptyTypes);
-            il.EmitCall(OpCodes.Call, _taskId, Type.EmptyTypes);
+            il.EmitCall(OpCodes.Call, _threadCurrent, null);
+            il.EmitCall(OpCodes.Callvirt, _threadId, null);
+            il.EmitCall(OpCodes.Call, _taskId, null);
             il.Emit(OpCodes.Ldc_I4_S, type.GetHashCode());
-            il.EmitCall(OpCodes.Call, hashCodeFinal, Type.EmptyTypes);
+            il.EmitCall(OpCodes.Call, hashCodeFinal, null);
             il.Emit(OpCodes.Ret);
         }
     }

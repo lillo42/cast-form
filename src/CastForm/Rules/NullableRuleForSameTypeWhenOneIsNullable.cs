@@ -54,7 +54,7 @@ namespace CastForm.Rules
 
         private void GenerateMapWithDestinyAsNotNullable(ILGenerator il, IReadOnlyDictionary<Type, LocalBuilder> localField)
         {
-            var getValueOrDefault = SourceProperty!.PropertyType.GetMethod("GetValueOrDefault", Type.EmptyTypes);
+            var getValueOrDefault = SourceProperty!.PropertyType.GetMethod("GetValueOrDefault");
             var field = localField[SourceProperty.PropertyType];
             il.Emit(OpCodes.Dup);
             il.Emit(OpCodes.Ldarg_1);
