@@ -43,7 +43,7 @@ namespace CastForm.Rules
             
             il.Emit(OpCodes.Dup);
             var mapper = new MapperProperty(DestinyProperty.DeclaringType, DestinyProperty, SourceProperty!.DeclaringType, SourceProperty);
-            if (mapperProperties.Count(x => x.Equals(mapper)) > 1)
+            if (mapperProperties.Count(x => x.GetHashCode() == mapper.GetHashCode()) > 1)
             {
                 // https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYAYAEMEDoDCA9hBAKYDGwYhAdgM4G3kCuATq6TcANyqowBmbHExFmXUq1QBvVJnmYADqzAA3AIbBSmDuoAmtCAE9MAJXU0DAW0wB9VheuYAvJhqkA7mceErACgBKXhQFJRUNLR1SfUMTIhoWdk5gABEwSmoadVYjAB4wLgAaTALgAD47K3VFRUkXN09RJjYOLjSM2my80uLSssDguQVBEq5MAHFSYDEJVj9SzAALdTpFoj1SAKH5WRDQhVsqmslcABUcyeAANXUIZlI/ZdX10mLCZmBMDVZMcnfZoLbfaHaq1VgAbSea0IGwAuvUANQIv7iLSsQZ7fbYADsv3+aOCoQAvnxMdghDAACyiMgWeZjKEvAIuCog46sM45UykKyEVQPRkw16Yd6fWyAlBAkYLS7mSy+QJA0LOVkOeVWXAAOVIAA9gANUCTJWgKSIALKgyQAQVOhAAQpgQJgAJIWxS5ADKYCsijIVuKXp9ZDtZRkUqEruqnu9vtIdoDMb9FTttqthIUyjUmm0ugMNGMTVRdVsKNm6fkmYi2hwADYojF8yYFrYAEYrUgACRW0I29S7zyFjCsLYKD2ARlqhAAZn5A7GrQFiuPJzO58GAhLQiM13HMG7Z4nSFbMHR3qxyJsgbssfJviezxf+z3tK4ny8hyP3H5W+230LipM7gOFoeh/hsuCXGBDynmwF4bhiN5fNkUR0MwECfK47heDudpKgo16IQoHq+FMiwFAA5iIrgwee2gAISYWhECYAAZCxdilmiEFTDMaJ+DRj7dkymC5JgQgAPyYCmhBWrg+4CaQuDEVYpEUcyTo0ExhR4fIRIITeJb4ic+C0jQ/EPp2QlChKOk4ihaE8ECRpGvwFIIHW8ATJwkjZqBVkbGGZIjLWoyfJB/kPDux50IeC62SqmBQR+o78bF4m4M6egSi5xrSrMU7qBeLpup6xQpKGKAEfIKR7tUs73rBmzBDlwUiFFgVbkICyZZg0iYORUzcCeg2YEanWYDhE0kcAZE0ORvX9SNdAjc5pKtRNh64ZV4ahS6egLQNPDDUdY3DEIUVTSpM0USIfWHUNy0nYaQA=
                 var counter = fields["_counter"];
@@ -93,6 +93,5 @@ namespace CastForm.Rules
         }
 
         public IEnumerable<(string name, Type type)> Fields { get; }
-        public bool IsInitOnConstructor { get; }
     }
 }

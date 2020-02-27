@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using AutoFixture;
 using FluentAssertions;
+using Xunit;
 
 namespace CastForm.Test.CircleReference
 {
@@ -15,19 +16,30 @@ namespace CastForm.Test.CircleReference
             _fixture = new Fixture();
         }
 
-
+        [Fact]
         public void WithOverrideHashCode()
         {
             var mapper = new MapperBuilder()
                 .AddMapper<SimpleA, SimpleB>()
+                .Reverse()
                 .Build();
 
-            var a = _fixture.Create<SimpleA>();
-            var b = _fixture.Create<SimpleB>();
-            
+            var a = new SimpleA
+            {
+                Id= _fixture.Create<int>(),
+                Text = _fixture.Create<string>(),
+                IsEnable = _fixture.Create<bool>()
+            };
+
+            var b = new SimpleB
+            {
+                Id = _fixture.Create<int>(),
+                Text = _fixture.Create<string>(),
+                IsEnable = _fixture.Create<bool>()
+            };
+
             a.Simple = b;
             b.Simple = a;
-
 
             var newB = mapper.Map<SimpleB>(a);
             newB.Id.Should().Be(a.Id);
@@ -38,7 +50,7 @@ namespace CastForm.Test.CircleReference
 
         public class SimpleA
         {
-            public SimpleB Simple { get; set; }
+            public SimpleB Simple { get;  set; }
 
             public int Id { get; set; }
             public string Text { get; set; }

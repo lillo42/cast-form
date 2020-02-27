@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CastForm.Generator;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -47,14 +48,19 @@ namespace CastForm
         {
             var mappers = new LinkedList<MapperProperty>();
 
+            HashCodeFactoryGenerator.Instance = new HashCodeFactoryGenerator();
             foreach (var mapper in Mappers)
             {
+                HashCodeFactoryGenerator.Instance.Add(mapper.Destiny);
+                HashCodeFactoryGenerator.Instance.Add(mapper.Source);
+
                 foreach (var rule in mapper.Rules)
                 {
                     mappers.AddLast(new MapperProperty(mapper.Destiny, rule.DestinyProperty, mapper.Source, rule.SourceProperty));
                 }
             }
 
+            HashCodeFactoryGenerator.Instance.Build();
             return Build(mappers);
         }
 

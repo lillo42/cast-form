@@ -10,8 +10,7 @@ namespace CastForm.Generator
 {
     public class HashCodeFactoryGenerator
     {
-        private static HashCodeFactoryGenerator s_instance;
-        public static HashCodeFactoryGenerator Instance => s_instance ??= new HashCodeFactoryGenerator();
+        public static HashCodeFactoryGenerator Instance { get; set; }
 
         private readonly TypeBuilder _builder;
         private readonly MethodInfo _taskId;
@@ -55,9 +54,9 @@ namespace CastForm.Generator
             }
         }
 
-        public void Build() => Type =  _builder.CreateType();
+        public void Build() => _builder.CreateType();
 
-        public Type Type { get; private set; }
+        public Type Type => _builder;
 
         private void HasHashCode(Type type)
         {
@@ -71,7 +70,7 @@ namespace CastForm.Generator
                 .MakeGenericMethod(type, typeof(int), typeof(int), typeof(int?));
 
             il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldc_I4_S, type.GetHashCode());
+            il.Emit(OpCodes.Ldc_I4, type.GetHashCode());
             il.EmitCall(OpCodes.Call, _threadCurrent, null);
             il.EmitCall(OpCodes.Callvirt, _threadId, null);
             il.EmitCall(OpCodes.Call, _taskId, null);
