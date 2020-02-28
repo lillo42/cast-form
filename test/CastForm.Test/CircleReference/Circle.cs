@@ -144,6 +144,51 @@ namespace CastForm.Test.CircleReference
             newB.Simple.Decimal.Should().Be(b.Decimal);
         }
 
+        [Fact]
+        public void MapTwice()
+        {
+            var mapper = new MapperBuilder()
+                .AddMapper<SimpleA, SimpleB>()
+                .Reverse()
+                .Build();
+
+            var a = new SimpleA
+            {
+                Id = _fixture.Create<int>(),
+                Text = _fixture.Create<string>(),
+                IsEnable = _fixture.Create<bool>()
+            };
+
+            var b = new SimpleB
+            {
+                Id = _fixture.Create<int>(),
+                Text = _fixture.Create<string>(),
+                IsEnable = _fixture.Create<bool>()
+            };
+
+            a.Simple = b;
+            b.Simple = a;
+
+            var newB = mapper.Map<SimpleB>(a);
+            newB.Id.Should().Be(a.Id);
+            newB.Text.Should().Be(a.Text);
+            newB.IsEnable.Should().Be(a.IsEnable);
+
+            newB.Simple.Id.Should().Be(b.Id);
+            newB.Simple.Text.Should().Be(b.Text);
+            newB.Simple.IsEnable.Should().Be(b.IsEnable);
+           
+            newB = mapper.Map<SimpleB>(a);
+
+            newB.Id.Should().Be(a.Id);
+            newB.Text.Should().Be(a.Text);
+            newB.IsEnable.Should().Be(a.IsEnable);
+
+            newB.Simple.Id.Should().Be(b.Id);
+            newB.Simple.Text.Should().Be(b.Text);
+            newB.Simple.IsEnable.Should().Be(b.IsEnable);
+        }
+
         public class SimpleA
         {
             public SimpleB Simple { get;  set; }

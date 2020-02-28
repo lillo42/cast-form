@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CastForm
@@ -30,7 +32,12 @@ namespace CastForm
 
             var mapperType = typeof(IMap<,>).MakeGenericType(sourceType, typeof(TDestiny));
             var mapper = (IMap)_provider.GetRequiredService(mapperType);
-            return (TDestiny)mapper.Map(source);
+            
+            var result = (TDestiny)mapper.Map(source);
+
+            var counter = _provider.GetRequiredService<Counter>();
+            counter.Clean(HashCode.Combine(Thread.CurrentThread.ManagedThreadId, Task.CurrentId));
+            return result;
         }
     }
 }
