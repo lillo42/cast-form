@@ -15,8 +15,10 @@ namespace CastForm.Rules
         // based on https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYGYAE9MGFMiYCSAsgIYAOAPAMpgC2FEApgIIA0mdjLAQgHyYA3qkxjMFAE5gAbmWDNMk5mQAmAewB2EAJ7Fy1bk2a5ORlgBFBAfQDGAFXUWA3KPFuxGLg2O9MBgApzNkwAZ3UAV0lbZgBKYQ9xTwB2TE1mAHdvHmZeRKSRFCTi8Rp1emZgAAswTQBzTABeTDtHCwA6QPComPayiurautj2fPEAX1ciidRx1HmUVC9ahUkAMzIY/UpaditUQqSLf0ogsMjouKm5xbQsHGDWA8SvYPx+ypr64Uw6yucwv9MDcbkt7nBsr5ntNPFhgscPoNvkJfkDQkCQQsvA8fCxcNCkstNMBiKofn9gAD0ZTgS97ggAAyYezMAAeJJRFKpGLpmAARup1BBiKEAKKaMh8ljktE8lCgu7YCHwgniLwQLQNIhkzmymk3Qn0pks9kymnUgEgoA===
 
         private readonly string _mapName;
-        public DifferentTypeRule(MemberInfo source, MemberInfo destiny)
+        private readonly HashCodeFactoryGenerator _hashCodeFactory;
+        public DifferentTypeRule(MemberInfo source, MemberInfo destiny, HashCodeFactoryGenerator hashCodeFactory)
         {
+            _hashCodeFactory = hashCodeFactory;
             SourceProperty = source as PropertyInfo ?? throw new ArgumentNullException(nameof(source));
             DestinyProperty = destiny as PropertyInfo ?? throw new ArgumentNullException(nameof(destiny));
 
@@ -48,7 +50,7 @@ namespace CastForm.Rules
                 // https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYAYAEMEDoDCA9hBAKYDGwYhAdgM4G3kCuATq6TcANyqowBmbHExFmXUq1QBvVJnmYADqzAA3AIbBSmDuoAmtCAE9MAJXU0DAW0wB9VheuYAvJhqkA7mceErACgBKXhQFJRUNLR1SfUMTIhoWdk5gABEwSmoadVYjAB4wLgAaTALgAD47K3VFRUkXN09RJjYOLjSM2my80uLSssDguQVBEq5MAHFSYDEJVj9SzAALdTpFoj1SAKH5WRDQhVsqmslcABUcyeAANXUIZlI/ZdX10mLCZmBMDVZMcnfZoLbfaHaq1VgAbSea0IGwAuvUANQIv7iLSsQZ7fbYADsv3+aOCoQAvnxMdghDAACyiMgWeZjKEvAIuCog46sM45UykKyEVQPRkw16Yd6fWyAlBAkYLS7mSy+QJA0LOVkOeVWXAAOVIAA9gANUCTJWgKSIALKgyQAQVOhAAQpgQJgAJIWxS5ADKYCsijIVuKXp9ZDtZRkUqEruqnu9vtIdoDMb9FTttqthIUyjUmm0ugMNGMTVRdVsKNm6fkmYi2hwADYojF8yYFrYAEYrUgACRW0I29S7zyFjCsLYKD2ARlqhAAZn5A7GrQFiuPJzO58GAhLQiM13HMG7Z4nSFbMHR3qxyJsgbssfJviezxf+z3tK4ny8hyP3H5W+230LipM7gOFoeh/hsuCXGBDynmwF4bhiN5fNkUR0MwECfK47heDudpKgo16IQoHq+FMiwFAA5iIrgwee2gAISYWhECYAAZCxdilmiEFTDMaJ+DRj7dkymC5JgQgAPyYCmhBWrg+4CaQuDEVYpEUcyTo0ExhR4fIRIITeJb4ic+C0jQ/EPp2QlChKOk4ihaE8ECRpGvwFIIHW8ATJwkjZqBVkbGGZIjLWoyfJB/kPDux50IeC62SqmBQR+o78bF4m4M6egSi5xrSrMU7qBeLpup6xQpKGKAEfIKR7tUs73rBmzBDlwUiFFgVbkICyZZg0iYORUzcCeg2YEanWYDhE0kcAZE0ORvX9SNdAjc5pKtRNh64ZV4ahS6egLQNPDDUdY3DEIUVTSpM0USIfWHUNy0nYaQA=
                 var counter = fields["_counter"];
                 var getCounter = typeof(Counter).GetMethod(nameof(Counter.GetCounter));
-                var hashCode = HashCodeFactoryGenerator.Instance.Type.GetMethod("GenHashCode", new[] { SourceProperty!.DeclaringType });
+                var hashCode = _hashCodeFactory.Type.GetMethod("GenHashCode", new[] { SourceProperty!.DeclaringType });
 
                 var returnNull = il.DefineLabel();
                 var canMap = il.DefineLabel();

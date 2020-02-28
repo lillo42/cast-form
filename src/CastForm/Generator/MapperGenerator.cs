@@ -19,16 +19,19 @@ namespace CastForm.Generator
         private readonly PropertyInfo[] _destinyProperties;
         private readonly IEnumerable<IRuleMapper> _rules;
 
+        private readonly HashCodeFactoryGenerator _hashCodeFactoryGenerator;
+
         private const string s_serviceProvider = "_serviceProvider";
         private const string s_isInit = "_isInit";
 
         private static readonly MethodInfo s_getService = typeof(IServiceProvider).GetMethod(nameof(IServiceProvider.GetService));
         private static readonly MethodInfo s_getTypeFromHandle = typeof(Type).GetMethod(nameof(Type.GetTypeFromHandle));
-        public MapperGenerator(Type source, Type destiny, IEnumerable<IRuleMapper> rules)
+        public MapperGenerator(Type source, Type destiny, IEnumerable<IRuleMapper> rules, HashCodeFactoryGenerator hashCodeFactoryGenerator)
         {
             _source = source ?? throw new ArgumentNullException(nameof(source));
             _destiny = destiny ?? throw new ArgumentNullException(nameof(destiny));
             _rules = rules ?? throw new ArgumentNullException(nameof(rules));
+            _hashCodeFactoryGenerator = hashCodeFactoryGenerator;
 
             _sourceProperties = source.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             _destinyProperties = destiny.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -48,7 +51,7 @@ namespace CastForm.Generator
             var moduleBuilder = assemblyBuilder.DefineDynamicModule($"{typeName}Module");
             const TypeAttributes typeAttributes = TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.BeforeFieldInit;
 
-            var mapper = typeof(IMap<,>).MakeGenericType(new[] { _source, _destiny });
+            var mapper = typeof(IMap<,>).MakeGenericType(_source, _destiny);
             var interfaces = new[] { mapper, typeof(IMap) };
 
             var typeBuilder = moduleBuilder.DefineType(typeName, typeAttributes, null, interfaces);
@@ -203,7 +206,7 @@ namespace CastForm.Generator
                     continue;
                 }
 
-                rules.AddLast(ForRuleFactory.CreateRule(destinyProperty, sourceProperty));
+                rules.AddLast(ForRuleFactory.CreateRule(destinyProperty, sourceProperty, _hashCodeFactoryGenerator));
             }
 
             return rules;

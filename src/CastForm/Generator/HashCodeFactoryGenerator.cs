@@ -8,19 +8,18 @@ using System.Threading.Tasks;
 
 namespace CastForm.Generator
 {
+    // https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYAYAEMEDoAqAFgE4CmAhgCZgB2A5gNyobYICsTKzAzNnJgGFMAb1SZx2XjAAsmALIAKAJQixEgL6pNXNFIQA2PpgDipGgAlyAZ0KpRKCZNaHawE2cs2BAe0qkFAMpgALYADhCkAIKYVt4ArsQAxqRKauL2jo4wAOyYnoQ+frg+wQBGtP5pmY75haTF3mUVCrEJybgAkpQANDHxSfX4pAAewL2tA51WAKI05KURSt1V1eII6OgA+hvoyw6rjkRkVMUJZDTARxSUuHLkc3SklFdUXXsHWfqnxOfAXSsSJScRzabSoHhGIJhCKROxVGC8VyYLoiTCPYAMGKkDGYbRZPRYIajVHozFWbGYvESBGYUrebwQZEzOYLUgkilYnGgoA=
     public class HashCodeFactoryGenerator
     {
-        public static HashCodeFactoryGenerator Instance { get; set; }
-
         private readonly TypeBuilder _builder;
-        private readonly MethodInfo _taskId;
-        private readonly MethodInfo _threadCurrent;
-        private readonly MethodInfo _threadId;
+        private static readonly MethodInfo s_taskId = typeof(Task).GetProperty(nameof(Task.CurrentId), BindingFlags.Public | BindingFlags.Static).GetMethod;
+        private static readonly MethodInfo s_threadCurrent = typeof(Thread).GetProperty(nameof(Thread.CurrentThread), BindingFlags.Public | BindingFlags.Static).GetMethod;
+        private static readonly MethodInfo s_threadId = typeof(Thread).GetProperty(nameof(Thread.ManagedThreadId), BindingFlags.Public | BindingFlags.Instance).GetMethod;
         private readonly HashSet<Type> _typesRegister = new HashSet<Type>();
 
         public HashCodeFactoryGenerator()
         {
-            var typeName = "HashCodeFactory";
+            const string typeName = "HashCodeFactory";
 
             var assemblyName = new AssemblyName($"{typeName}Assembly");
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
@@ -29,10 +28,6 @@ namespace CastForm.Generator
             const TypeAttributes typeAttributes = TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.BeforeFieldInit;
 
             _builder = moduleBuilder.DefineType(typeName, typeAttributes, null, Type.EmptyTypes);
-
-            _taskId = typeof(Task).GetProperty(nameof(Task.CurrentId), BindingFlags.Public | BindingFlags.Static).GetMethod;
-            _threadCurrent = typeof(Thread).GetProperty(nameof(Thread.CurrentThread), BindingFlags.Public | BindingFlags.Static).GetMethod;
-            _threadId = typeof(Thread).GetProperty(nameof(Thread.ManagedThreadId), BindingFlags.Public | BindingFlags.Instance).GetMethod;
         }
 
 
@@ -71,9 +66,9 @@ namespace CastForm.Generator
 
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldc_I4, type.GetHashCode());
-            il.EmitCall(OpCodes.Call, _threadCurrent, null);
-            il.EmitCall(OpCodes.Callvirt, _threadId, null);
-            il.EmitCall(OpCodes.Call, _taskId, null);
+            il.EmitCall(OpCodes.Call, s_threadCurrent, null);
+            il.EmitCall(OpCodes.Callvirt, s_threadId, null);
+            il.EmitCall(OpCodes.Call, s_taskId, null);
             il.EmitCall(OpCodes.Call, hashCombine, null);
             il.Emit(OpCodes.Ret);
         }
@@ -120,9 +115,9 @@ namespace CastForm.Generator
 
             var hashCodeFinal = hashCodes[3].MakeGenericMethod(typeof(int), typeof(int), typeof(int), typeof(int?));
             il.Emit(OpCodes.Ldc_I4, type.GetHashCode());
-            il.EmitCall(OpCodes.Call, _threadCurrent, null);
-            il.EmitCall(OpCodes.Callvirt, _threadId, null);
-            il.EmitCall(OpCodes.Call, _taskId, null);
+            il.EmitCall(OpCodes.Call, s_threadCurrent, null);
+            il.EmitCall(OpCodes.Callvirt, s_threadId, null);
+            il.EmitCall(OpCodes.Call, s_taskId, null);
             il.EmitCall(OpCodes.Call, hashCodeFinal, null);
             il.Emit(OpCodes.Ret);
         }

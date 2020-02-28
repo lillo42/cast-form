@@ -1,10 +1,11 @@
 ﻿using System.Reflection;
+using CastForm.Generator;
 
 namespace CastForm.Rules
 {
     internal static class ForRuleFactory
     {
-        public static IRuleMapper CreateRule(PropertyInfo destiny, PropertyInfo source)
+        public static IRuleMapper CreateRule(PropertyInfo destiny, PropertyInfo source, HashCodeFactoryGenerator hashCodeFactory)
         {
             if (source.PropertyType == destiny.PropertyType)
             {
@@ -29,14 +30,14 @@ namespace CastForm.Rules
                 return new NullableRuleForDifferentTypeWhenOneIsNullable(source, destiny);
             }
 
-            if (source.PropertyType.IsNullable() && destiny.PropertyType.IsNullable() 
+            if (source.PropertyType.IsNullable() && destiny.PropertyType.IsNullable()
                 && source.PropertyType.GetUnderlyingType().IsNetType() && destiny.PropertyType.GetUnderlyingType().IsNetType())
             {
-                
+
                 return new NullableRuleForDifferentType(source, destiny);
             }
 
-            return new DifferentTypeRule(source,destiny);
+            return new DifferentTypeRule(source, destiny, hashCodeFactory);
         }
     }
 }
