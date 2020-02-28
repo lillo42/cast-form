@@ -85,21 +85,22 @@ namespace CastForm.Generator
                 typeof(int), new[] { type });
             var il = getHashCode.GetILGenerator();
 
-            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance)
-                .Where(x => x.FieldType.IsNetType() || x.FieldType.IsNullable()).ToArray();
+            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(x => x.PropertyType.IsNetType() || x.PropertyType.IsNullable()).ToArray();
             var hashCodes = typeof(HashCode).GetMethods(BindingFlags.Public | BindingFlags.Static).ToArray();
 
-            bool isFirst = true;
+            var isFirst = true;
 
-            for (var i = 0; i < fields.Length; i += 7)
+            for (var i = 0; i < properties.Length; i += 7)
             {
-                var tmp = i + 7 < fields.Length ? fields[i..(i + 7)] : fields[i..];
+                var tmp = i + 7 < properties.Length ? properties[i..(i + 7)] : properties[i..];
 
-                var hashCodeTypes = tmp.Select(x => x.FieldType).ToList();
+                var hashCodeTypes = tmp.Select(x => x.PropertyType).ToList();
 
-                foreach (var field in tmp)
+                foreach (var property in tmp)
                 {
-                    il.Emit(OpCodes.Ldfld, field);
+                    il.Emit(OpCodes.Ldarg_0);
+                    il.EmitCall(OpCodes.Callvirt, property.GetMethod, null);
                 }
 
                 MethodInfo? hashCodeFun = null;
@@ -117,12 +118,11 @@ namespace CastForm.Generator
                 il.EmitCall(OpCodes.Call, hashCodeFun, null);
             }
 
-            var hashCodeFinal = hashCodes[3].MakeGenericMethod(type, typeof(int), typeof(int?), typeof(int));
-
+            var hashCodeFinal = hashCodes[3].MakeGenericMethod(typeof(int), typeof(int), typeof(int), typeof(int?));
+            il.Emit(OpCodes.Ldc_I4, type.GetHashCode());
             il.EmitCall(OpCodes.Call, _threadCurrent, null);
             il.EmitCall(OpCodes.Callvirt, _threadId, null);
             il.EmitCall(OpCodes.Call, _taskId, null);
-            il.Emit(OpCodes.Ldc_I4_S, type.GetHashCode());
             il.EmitCall(OpCodes.Call, hashCodeFinal, null);
             il.Emit(OpCodes.Ret);
         }
