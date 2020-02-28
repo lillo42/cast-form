@@ -105,7 +105,7 @@ namespace CastForm.Generator
                 }
                 else
                 {
-                    hashCodeTypes.Add(typeof(int));
+                    hashCodeTypes.Insert(0, typeof(int));
                     hashCodeFun = hashCodes[tmp.Length].MakeGenericMethod(hashCodeTypes.ToArray());
                 }
                 isFirst = false;
