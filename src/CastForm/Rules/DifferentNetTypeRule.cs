@@ -20,7 +20,7 @@ namespace CastForm.Rules
 
         public PropertyInfo? SourceProperty { get; }
 
-        public void Execute(ILGenerator il, IReadOnlyDictionary<string, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields)
+        public void Execute(ILGenerator il, IReadOnlyDictionary<string, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields, IEnumerable<MapperProperty> mapperProperties)
             => Execute(il, SourceProperty!, DestinyProperty);
 
         internal static void Execute(ILGenerator il, PropertyInfo source, PropertyInfo destiny)

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CastForm
@@ -16,8 +18,15 @@ namespace CastForm
 
         public TDestiny Map<TSource, TDestiny>(TSource source)
         {
-            return _provider.GetRequiredService<IMap<TSource, TDestiny>>()
-                .Map(source);
+            try
+            {
+                return _provider.GetRequiredService<IMap<TSource, TDestiny>>()
+                    .Map(source);
+            }
+            finally
+            {
+                _provider.GetRequiredService<Counter>().Clean();
+            }
         }
 
         public TDestiny Map<TDestiny>(object source)
@@ -30,7 +39,15 @@ namespace CastForm
 
             var mapperType = typeof(IMap<,>).MakeGenericType(sourceType, typeof(TDestiny));
             var mapper = (IMap)_provider.GetRequiredService(mapperType);
-            return (TDestiny)mapper.Map(source);
+
+            try
+            {
+                return (TDestiny)mapper.Map(source);
+            }
+            finally
+            {
+                _provider.GetRequiredService<Counter>().Clean();
+            }
         }
     }
 }

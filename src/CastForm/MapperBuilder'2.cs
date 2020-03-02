@@ -16,12 +16,14 @@ namespace CastForm
         private readonly IMapperBuilder _parent;
         private readonly IServiceCollection _service;
         private readonly MapperGenerator _generator;
+        private readonly HashCodeFactoryGenerator _hashCodeFactoryGenerator;
 
-        public MapperBuilder(IMapperBuilder parent, IServiceCollection service)
+        public MapperBuilder(IMapperBuilder parent, IServiceCollection service, HashCodeFactoryGenerator hashCodeFactoryGenerator)
         {
             _parent = parent ?? throw new ArgumentNullException(nameof(parent));
             _service = service ?? throw new ArgumentNullException(nameof(service));
-            _generator = new MapperGenerator(typeof(TSource), typeof(TDestiny), _rules);
+            _hashCodeFactoryGenerator = hashCodeFactoryGenerator;
+            _generator = new MapperGenerator(typeof(TSource), typeof(TDestiny), _rules, hashCodeFactoryGenerator);
         }
 
         public virtual IMapperBuilder<TDestiny, TSource> Reverse()
@@ -35,7 +37,7 @@ namespace CastForm
 
         public virtual IMapperBuilder<TSource1, TDestiny1> AddMapper<TSource1, TDestiny1>()
         {
-            var mapper = new MapperBuilder<TSource1, TDestiny1>(this, _service);
+            var mapper = new MapperBuilder<TSource1, TDestiny1>(this, _service, _hashCodeFactoryGenerator);
             _parent.AddMapper(mapper);
             return mapper;
         } 
@@ -51,7 +53,7 @@ namespace CastForm
 
         public virtual void Register(IEnumerable<MapperProperty> mapperProperties)
         {
-            var mapper = _generator.Generate();
+            var mapper = _generator.Generate(mapperProperties);
 
             _service.TryAddSingleton(typeof(IMap<TSource, TDestiny>), mapper);
 
@@ -90,7 +92,7 @@ namespace CastForm
 
             var sourceProperty = ((source.Body as MemberExpression)!.Member as PropertyInfo)!;
             var destinyProperty = ((destiny.Body as MemberExpression)!.Member as PropertyInfo)!;
-            _rules.Add(ForRuleFactory.CreateRule(destinyProperty, sourceProperty));
+            _rules.Add(ForRuleFactory.CreateRule(destinyProperty, sourceProperty, _hashCodeFactoryGenerator));
             return this;
         }
 

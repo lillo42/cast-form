@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CastForm.Generator;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -9,6 +10,7 @@ namespace CastForm
     public class MapperBuilder : IMapperBuilder
     {
         private readonly IServiceCollection _service;
+        private readonly HashCodeFactoryGenerator _hashCodeFactoryGenerator;
         public ICollection<IMapperBuilder> Mappers { get; }
 
         public MapperBuilder()
@@ -22,6 +24,8 @@ namespace CastForm
             _service = service ?? throw new ArgumentNullException(nameof(service));
             Mappers = new LinkedList<IMapperBuilder>();
             _service.TryAddSingleton<IMapper, Mapper>();
+            _service.TryAddSingleton<Counter>();
+            _hashCodeFactoryGenerator = new HashCodeFactoryGenerator();
         }
 
         public Type Source => default!;
@@ -31,7 +35,7 @@ namespace CastForm
 
         public virtual IMapperBuilder<TSource, TDestiny> AddMapper<TSource, TDestiny>()
         {
-            var mapper = new MapperBuilder<TSource, TDestiny>(this, _service);
+            var mapper = new MapperBuilder<TSource, TDestiny>(this, _service, _hashCodeFactoryGenerator);
             Mappers.Add(mapper);
             return mapper;
         }
@@ -48,11 +52,16 @@ namespace CastForm
 
             foreach (var mapper in Mappers)
             {
+                _hashCodeFactoryGenerator.Add(mapper.Destiny);
+                _hashCodeFactoryGenerator.Add(mapper.Source);
+
                 foreach (var rule in mapper.Rules)
                 {
                     mappers.AddLast(new MapperProperty(mapper.Destiny, rule.DestinyProperty, mapper.Source, rule.SourceProperty));
                 }
             }
+
+            _hashCodeFactoryGenerator.Build();
 
             return Build(mappers);
         }

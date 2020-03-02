@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -26,7 +27,7 @@ namespace CastForm.Rules
 
         public PropertyInfo? SourceProperty { get; }
 
-        public void Execute(ILGenerator il, IReadOnlyDictionary<string, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields)
+        public void Execute(ILGenerator il, IReadOnlyDictionary<string, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields, IEnumerable<MapperProperty> mapperProperties)
         {
             if (DestinyProperty.PropertyType.IsNullable())
             {
@@ -54,7 +55,7 @@ namespace CastForm.Rules
 
         private void GenerateMapWithDestinyAsNotNullable(ILGenerator il, IReadOnlyDictionary<Type, LocalBuilder> localField)
         {
-            var getValueOrDefault = SourceProperty!.PropertyType.GetMethod("GetValueOrDefault", Type.EmptyTypes);
+            var getValueOrDefault = SourceProperty!.PropertyType.GetMethods().First(x => x.Name == "GetValueOrDefault" && x.GetParameters().Length == 0);
             var field = localField[SourceProperty.PropertyType];
             il.Emit(OpCodes.Dup);
             il.Emit(OpCodes.Ldarg_1);
