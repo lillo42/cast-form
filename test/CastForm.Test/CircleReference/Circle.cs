@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using Xunit;
@@ -187,6 +188,61 @@ namespace CastForm.Test.CircleReference
             newB.Simple.Id.Should().Be(b.Id);
             newB.Simple.Text.Should().Be(b.Text);
             newB.Simple.IsEnable.Should().Be(b.IsEnable);
+        }
+
+
+        [Fact]
+        public async Task MapTwiceInDifferentTask()
+        {
+            var mapper = new MapperBuilder()
+                .AddMapper<SimpleA, SimpleB>()
+                .Reverse()
+                .Build();
+
+            var a = new SimpleA
+            {
+                Id = _fixture.Create<int>(),
+                Text = _fixture.Create<string>(),
+                IsEnable = _fixture.Create<bool>()
+            };
+
+            var b = new SimpleB
+            {
+                Id = _fixture.Create<int>(),
+                Text = _fixture.Create<string>(),
+                IsEnable = _fixture.Create<bool>()
+            };
+
+            a.Simple = b;
+            b.Simple = a;
+
+            var task1 = Task.Factory.StartNew(() =>
+            {
+                var newB = mapper.Map<SimpleB>(a);
+                newB.Id.Should().Be(a.Id);
+                newB.Text.Should().Be(a.Text);
+                newB.IsEnable.Should().Be(a.IsEnable);
+
+                newB.Simple.Id.Should().Be(b.Id);
+                newB.Simple.Text.Should().Be(b.Text);
+                newB.Simple.IsEnable.Should().Be(b.IsEnable);
+            });
+
+
+            var task2 = Task.Factory.StartNew(() =>
+            {
+
+                var newB = mapper.Map<SimpleB>(a);
+                newB.Id.Should().Be(a.Id);
+                newB.Text.Should().Be(a.Text);
+                newB.IsEnable.Should().Be(a.IsEnable);
+
+                newB.Simple.Id.Should().Be(b.Id);
+                newB.Simple.Text.Should().Be(b.Text);
+                newB.Simple.IsEnable.Should().Be(b.IsEnable);
+            });
+
+            await Task.WhenAll(task1, task2);
         }
 
         public class SimpleA

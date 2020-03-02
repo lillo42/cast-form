@@ -18,8 +18,15 @@ namespace CastForm
 
         public TDestiny Map<TSource, TDestiny>(TSource source)
         {
-            return _provider.GetRequiredService<IMap<TSource, TDestiny>>()
-                .Map(source);
+            try
+            {
+                return _provider.GetRequiredService<IMap<TSource, TDestiny>>()
+                    .Map(source);
+            }
+            finally
+            {
+                _provider.GetRequiredService<Counter>().Clean();
+            }
         }
 
         public TDestiny Map<TDestiny>(object source)
@@ -32,12 +39,15 @@ namespace CastForm
 
             var mapperType = typeof(IMap<,>).MakeGenericType(sourceType, typeof(TDestiny));
             var mapper = (IMap)_provider.GetRequiredService(mapperType);
-            
-            var result = (TDestiny)mapper.Map(source);
 
-            var counter = _provider.GetRequiredService<Counter>();
-            counter.Clean(HashCode.Combine(Thread.CurrentThread.ManagedThreadId, Task.CurrentId));
-            return result;
+            try
+            {
+                return (TDestiny)mapper.Map(source);
+            }
+            finally
+            {
+                _provider.GetRequiredService<Counter>().Clean();
+            }
         }
     }
 }
