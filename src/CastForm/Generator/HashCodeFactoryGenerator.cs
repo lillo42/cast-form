@@ -56,7 +56,7 @@ namespace CastForm.Generator
         private void HasHashCode(Type type)
         {
             var getHashCode = _builder.DefineMethod("GenHashCode",
-                MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.HideBySig, CallingConventions.Any,
+                MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.HideBySig, CallingConventions.Standard,
                 typeof(int), new[] { type });
 
             var il = getHashCode.GetILGenerator();
@@ -76,7 +76,7 @@ namespace CastForm.Generator
         private void HasNotHashCode(Type type)
         {
             var getHashCode = _builder.DefineMethod("GenHashCode",
-                MethodAttributes.Public | MethodAttributes.Static, CallingConventions.Any,
+                MethodAttributes.Public | MethodAttributes.Static, CallingConventions.Standard,
                 typeof(int), new[] { type });
             var il = getHashCode.GetILGenerator();
 
