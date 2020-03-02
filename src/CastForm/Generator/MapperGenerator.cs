@@ -67,9 +67,7 @@ namespace CastForm.Generator
             
             CreateConstructor(typeBuilder, fields);
             var init = CreateInit(typeBuilder, fields);
-            BeforeExecuteRule(generator, rules, fields, localFields, mapperProperties, init);
-            GenerateMap(generator, rules, fields, localFields, mapperProperties);
-            AfterExecuteRule(generator, rules, fields, localFields, mapperProperties);
+            GenerateMap(generator, rules, fields, localFields, mapperProperties, init);
 
             return typeBuilder.CreateType();
         }
@@ -136,7 +134,8 @@ namespace CastForm.Generator
             return null;
         }
 
-        private static void BeforeExecuteRule(ILGenerator il,
+
+        private void GenerateMap(ILGenerator generator,
             IEnumerable<IRuleMapper> rules,
             IReadOnlyDictionary<string, FieldBuilder> fields,
             IReadOnlyDictionary<Type, LocalBuilder> localFields,
@@ -145,34 +144,11 @@ namespace CastForm.Generator
         {
             if (builder != null)
             {
-                il.Emit(OpCodes.Ldarg_0);
-                il.EmitCall(OpCodes.Call, builder, null);
+                generator.Emit(OpCodes.Ldarg_0);
+                generator.EmitCall(OpCodes.Call, builder, null);
             }
 
-            foreach (var rule in rules.Where(x => x is IBeforeRule).Cast<IBeforeRule>())
-            {
-                rule.Execute(il, fields, localFields, mapperProperties);
-            }
-        }
 
-        private static void AfterExecuteRule(ILGenerator il,
-            IEnumerable<IRuleMapper> rules,
-            IReadOnlyDictionary<string, FieldBuilder> fields,
-            IReadOnlyDictionary<Type, LocalBuilder> localFields,
-            IEnumerable<MapperProperty> mapperProperties)
-        {
-            foreach (var rule in rules.Where(x => x is IAfterRule).Cast<IAfterRule>())
-            {
-                rule.Execute(il, fields, localFields, mapperProperties);
-            }
-        }
-
-        private void GenerateMap(ILGenerator generator,
-            IEnumerable<IRuleMapper> rules,
-            IReadOnlyDictionary<string, FieldBuilder> fields,
-            IReadOnlyDictionary<Type, LocalBuilder> localFields,
-            IEnumerable<MapperProperty> mapperProperties)
-        {
             generator.Emit(OpCodes.Newobj, _destiny.GetConstructor(Type.EmptyTypes));
 
             foreach (var destinyProperty in _destinyProperties)
