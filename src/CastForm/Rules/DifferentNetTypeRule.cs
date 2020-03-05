@@ -10,29 +10,85 @@ namespace CastForm.Rules
     /// </summary>
     public class DifferentNetTypeRule : IRuleMapper
     {
+        /// <summary>
+        /// Initialize a new instance of <see cref="DifferentNetTypeRule"/>
+        /// </summary>
+        /// <param name="source">The source member</param>
+        /// <param name="destiny">The source member</param>
         public DifferentNetTypeRule(MemberInfo source, MemberInfo destiny)
         {
             SourceProperty = source as PropertyInfo ?? throw new ArgumentNullException(nameof(source));
             DestinyProperty = destiny as PropertyInfo ?? throw new ArgumentNullException(nameof(destiny));
         }
 
+        /// <summary>
+        /// Property Destiny
+        /// </summary>
         public PropertyInfo DestinyProperty { get; }
 
+        /// <summary>
+        /// Property Source
+        /// </summary>
         public PropertyInfo? SourceProperty { get; }
 
+        /// <summary>
+        /// Execute rule
+        /// </summary>
+        /// <param name="il">The <see cref="ILGenerator"/> that generate method  </param>
+        /// <param name="fields">The <see cref="IReadOnlyDictionary{TKey, TValue}"/> that have all field in class that was already added.</param>
+        /// <param name="localFields">The <see cref="IReadOnlyDictionary{TKey, TValue}"/> that have all locals field that was already added.</param>
+        /// <param name="mapperProperties">The <see cref="IEnumerable{MapperProperty}"/> that have map.</param>
         public void Execute(ILGenerator il, IReadOnlyDictionary<string, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields, IEnumerable<MapperProperty> mapperProperties)
             => Execute(il, SourceProperty!, DestinyProperty);
 
-        internal static void Execute(ILGenerator il, PropertyInfo source, PropertyInfo destiny)
+        private static void Execute(ILGenerator il, PropertyInfo source, PropertyInfo destiny)
         {
             if (ShouldUseSameType(source.PropertyType, destiny.PropertyType))
             {
                 // based on https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYGYAE9MGFMiYCSAsgIYAOmA3qpvdlgMpgC2FEApgEKbkUAKFuy4BBTAGcA9gFcATgGNOAShp0GGmAHZMAO04B3TMI491G+rRQWbxACaYAvJNmLOAOiJ2ANOdv0AFU4AD2AnF3kldyDQvw0AXwBuP3jUVJRUVAxMMF1gTjkAMzIlYn5UKw0TLl5+ITZTcWlIlWSUdKysHGrOUQq/bNywrxpMAHNOYETJSen0zS6EAAZMGLDqcdmZqcx5hmyAIykpCGIJAFFdMgOuUYmdiS30jrQuuGMGmv7rfawIKV0Y3sdy2jx2e3o2Rgy1WIXWmweTzSQA=
+                // There are same types that is different in .NET but to CLR they are the same pu
+                // public class Map
+                // {
+                //      public SimpleB Map(SimpleA source)
+                //      {
+                //          return new SimpleB
+                //          {
+                //              Int = source.Short // This mapper is create this line
+                //          };
+                //      }
+                // }
+                // public class SimpleA
+                // {
+                //      public short Short { get; set;}
+                // }
+                // public class SimpleB
+                // {
+                //      public int Int { get; set;}
+                // }
+
                 SameTypeRule.Execute(il, source, destiny);
             }
             else
             {
                 // based on https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYGYAE9MGFMiYCSAsgIYAOmA3qpvdlgMpgC2FEApgEKbkUAKFuy4BBTAGcA9gFcATgGNOAShp0GGmAHZMAO04B3TMI491G+rRQWbxACaYAvHim6AbpznAAdABUpRLrA6HAC0vJK3kR2ygA05rb0vpwAHsBOkrKKnH6pwAkaAL4A3AmFqOUoqKgYmGBBngBmZErE/KhWGiZcvPxCbKbi4dnKpSiVNVg43ZyiHQm1EK4A5vY0mMucwMWSWzuVmlMIAAyYyWnrm9u71wcMtQBGUlIQxBIAorpkD1yXezf7CrVNBTODGAY9ebWe5YerpaJ/a4Sf53ei1GAnM55RE7ZG3CpAA=
+                // public class Map
+                // {
+                //      public SimpleB Map(SimpleA source)
+                //      {
+                //          return new SimpleB
+                //          {
+                //              Double = Convert.ToDouble(source.Int) // This mapper is create this line
+                //          };
+                //      }
+                // }
+                // public class SimpleA
+                // {
+                //      public int Int { get; set;}
+                // }
+                // public class SimpleB
+                // {
+                //      public double Double { get; set;}
+                // }
                 UseConverter(il, source, destiny);
             }
         }

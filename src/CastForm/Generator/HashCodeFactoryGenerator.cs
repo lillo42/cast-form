@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 
 namespace CastForm.Generator
 {
-    // https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYAYAEMEDoAqAFgE4CmAhgCZgB2A5gNyobYICsTKzAzNnJgGFMAb1SZx2XjAAsmALIAKAJQixEgL6pNXNFIQA2PpgDipGgAlyAZ0KpRKCZNaHawE2cs2BAe0qkFAMpgALYADhCkAIKYVt4ArsQAxqRKauL2jo4wAOyYnoQ+frg+wQBGtP5pmY75haTF3mUVCrEJybgAkpQANDHxSfX4pAAewL2tA51WAKI05KURSt1V1eII6OgA+hvoyw6rjkRkVMUJZDTARxSUuHLkc3SklFdUXXsHWfqnxOfAXSsSJScRzabSoHhGIJhCKROxVGC8VyYLoiTCPYAMGKkDGYbRZPRYIajVHozFWbGYvESBGYUrebwQZEzOYLUgkilYnGgoA=
+    /// <summary>
+    /// Create a class HashCodeFactory with methods calls GenHashCode with Type that was added.
+    /// </summary>
     public class HashCodeFactoryGenerator
     {
         private readonly TypeBuilder _builder;
@@ -17,6 +19,22 @@ namespace CastForm.Generator
         private static readonly MethodInfo s_threadId = typeof(Thread).GetProperty(nameof(Thread.ManagedThreadId), BindingFlags.Public | BindingFlags.Instance).GetMethod;
         private readonly HashSet<Type> _typesRegister = new HashSet<Type>();
 
+
+        // This code generate HashCodeFactory, that should be like:
+        // https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYAYAEMEDoAqAFgE4CmAhgCZgB2A5gNyobYICsTKzAzNnJgGFMAb1SZx2XjAAsmALIAKAJQixEgL6pNXNFIQA2PpgDipGgAlyAZ0KpRKCZNaHawE2cs2BAe0qkFAMpgALYADhCkAIKYVt4ArsQAxqRKauL2jo4wAOyYnoQ+frg+wQBGtP5pmY75haTF3mUVCrEJybgAkpQANDHxSfX4pAAewL2tA51WAKI05KURSt1V1eII6OgA+hvoyw6rjkRkVMUJZDTARxSUuHLkc3SklFdUXXsHWfqnxOfAXSsSJScRzabSoHhGIJhCKROxVGC8VyYLoiTCPYAMGKkDGYbRZPRYIajVHozFWbGYvESBGYUrebwQZEzOYLUgkilYnGgoA=
+        // Thread.CurrentThread.ManagedThreadId and Task.CurrentId is used to ensure we a are creating unique hash code foreach process.
+        // 123 = type.GetHashCode()
+        // public static class HashCodeFactory
+        // {
+        //      public static int GenHashCode(object o)
+        //      {
+        //          return HashCode.Combine(o.GetHashCode(), 123, Thread.CurrentThread.ManagedThreadId, Task.CurrentId);
+        //      }
+        // }
+
+        /// <summary>
+        /// Initialize a new instance of <see cref="HashCodeFactoryGenerator"/>
+        /// </summary>
         public HashCodeFactoryGenerator()
         {
             const string typeName = "HashCodeFactory";
@@ -30,7 +48,10 @@ namespace CastForm.Generator
             _builder = moduleBuilder.DefineType(typeName, typeAttributes, null, Type.EmptyTypes);
         }
 
-
+        /// <summary>
+        /// Add override GenHashCode with type
+        /// </summary>
+        /// <param name="type">Type parameter that should be received in GenHashCode</param>
         public void Add(Type type)
         {
             if (!_typesRegister.Add(type))
@@ -49,12 +70,24 @@ namespace CastForm.Generator
             }
         }
 
+        /// <summary>
+        /// Build class to create HashCodeFactory
+        /// </summary>
         public void Build() => _builder.CreateType();
 
+        /// <summary>
+        /// Type of HashCodeFactory.
+        /// </summary>
         public Type Type => _builder;
 
         private void HasHashCode(Type type)
         {
+            // This Method should generate this code
+            // public static int GenHashCode(Foo o)
+            // {
+            //      return HashCode.Combine(HashCode.Combine(o.Id, o.Text), 123, Thread.CurrentThread.ManagedThreadId, Task.CurrentId);
+            //  }
+
             var getHashCode = _builder.DefineMethod("GenHashCode",
                 MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.HideBySig, CallingConventions.Standard,
                 typeof(int), new[] { type });
@@ -75,6 +108,11 @@ namespace CastForm.Generator
 
         private void HasNotHashCode(Type type)
         {
+            // This Method should generate this code
+            // public static int GenHashCode(Foo o)
+            // {
+            //      return HashCode.Combine(o.GetHashCode(), 123, Thread.CurrentThread.ManagedThreadId, Task.CurrentId);
+            //  }
             var getHashCode = _builder.DefineMethod("GenHashCode",
                 MethodAttributes.Public | MethodAttributes.Static, CallingConventions.Standard,
                 typeof(int), new[] { type });

@@ -10,6 +10,11 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CastForm
 {
+    /// <summary>
+    /// Define rules of mapping
+    /// </summary>
+    /// <typeparam name="TSource">Source type</typeparam>
+    /// <typeparam name="TDestiny">Destiny type to be created</typeparam>
     public class MapperBuilder<TSource, TDestiny> : IMapperBuilder<TSource, TDestiny>
     {
         private readonly ICollection<IRuleMapper> _rules = new List<IRuleMapper>();
@@ -18,6 +23,12 @@ namespace CastForm
         private readonly MapperGenerator _generator;
         private readonly HashCodeFactoryGenerator _hashCodeFactoryGenerator;
 
+        /// <summary>
+        /// Initialize a new instance of <see cref="MapperBuilder{TSource, TDestiny}"/>
+        /// </summary>
+        /// <param name="parent">The parent of this mapper</param>
+        /// <param name="service">The <see cref="IServiceCollection"/> to register type. </param>
+        /// <param name="hashCodeFactoryGenerator">The <see cref="HashCodeFactoryGenerator"/> is used to create GenHashCode.</param>
         public MapperBuilder(IMapperBuilder parent, IServiceCollection service, HashCodeFactoryGenerator hashCodeFactoryGenerator)
         {
             _parent = parent ?? throw new ArgumentNullException(nameof(parent));
@@ -26,15 +37,35 @@ namespace CastForm
             _generator = new MapperGenerator(typeof(TSource), typeof(TDestiny), _rules, hashCodeFactoryGenerator);
         }
 
+        /// <summary>
+        /// Reverse map, but not reverse rules
+        /// </summary>
+        /// <returns></returns>
         public virtual IMapperBuilder<TDestiny, TSource> Reverse()
             => AddMapper<TDestiny, TSource>();
 
+        /// <summary>
+        /// Source type
+        /// </summary>
         public virtual Type Source => typeof(TSource);
+
+        /// <summary>
+        /// Destination type
+        /// </summary>
         public virtual Type Destiny => typeof(TDestiny);
 
+        /// <summary>
+        /// Rules mapper
+        /// </summary>
         public IEnumerable<IRuleMapper> Rules 
             => _generator.CreateRules();
 
+        /// <summary>
+        /// Add Mapper
+        /// </summary>
+        /// <typeparam name="TSource1">Source type</typeparam>
+        /// <typeparam name="TDestiny1">Destiny type to be created</typeparam>
+        /// <returns></returns>
         public virtual IMapperBuilder<TSource1, TDestiny1> AddMapper<TSource1, TDestiny1>()
         {
             var mapper = new MapperBuilder<TSource1, TDestiny1>(this, _service, _hashCodeFactoryGenerator);
@@ -51,6 +82,10 @@ namespace CastForm
         IMapper IMapperBuilder.Build() 
             => _parent.Build();
 
+        /// <summary>
+        /// Register Type in <see cref="IServiceCollection"/>
+        /// </summary>
+        /// <param name="mapperProperties"></param>
         public virtual void Register(IEnumerable<MapperProperty> mapperProperties)
         {
             var mapper = _generator.Generate(mapperProperties);
@@ -60,7 +95,7 @@ namespace CastForm
             var enumerable = typeof(LazyEnumerableMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
             _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, IEnumerable<TDestiny>>), enumerable);
 
-            var linkedList = typeof(LinkedListCollectionMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
+            var linkedList = typeof(ICollectionMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
             _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, ICollection<TDestiny>>), linkedList);
 
             var list = typeof(ListCollectionMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
@@ -76,6 +111,14 @@ namespace CastForm
             _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, ISet<TDestiny>>), iSet);
         }
 
+        /// <summary>
+        /// Specific what property to property
+        /// </summary>
+        /// <typeparam name="TDestinyMember"></typeparam>
+        /// <typeparam name="TSourceMember"></typeparam>
+        /// <param name="destiny"></param>
+        /// <param name="source"></param>
+        /// <returns></returns>
         public virtual IMapperBuilder<TSource, TDestiny> For<TDestinyMember, TSourceMember>(Expression<Func<TDestiny, TDestinyMember>> destiny, Expression<Func<TSource, TSourceMember>> source)
         {
 
@@ -96,6 +139,12 @@ namespace CastForm
             return this;
         }
 
+        /// <summary>
+        /// Property to be ignore
+        /// </summary>
+        /// <typeparam name="TMember"></typeparam>
+        /// <param name="destiny"></param>
+        /// <returns></returns>
         public virtual IMapperBuilder<TSource, TDestiny> Ignore<TMember>(Expression<Func<TDestiny, TMember>> destiny)
         {
             if (destiny.Body.NodeType != ExpressionType.MemberAccess)

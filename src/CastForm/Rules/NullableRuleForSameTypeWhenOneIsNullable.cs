@@ -12,6 +12,11 @@ namespace CastForm.Rules
     /// </summary>
     public class NullableRuleForSameTypeWhenOneIsNullable : IRuleMapper, IRuleNeedLocalField
     {
+        /// <summary>
+        /// Initialize a new instance of <see cref="NullableRuleForSameTypeWhenOneIsNullable"/>
+        /// </summary>
+        /// <param name="source">The source member</param>
+        /// <param name="destiny">The source member</param>
         public NullableRuleForSameTypeWhenOneIsNullable(MemberInfo source, MemberInfo destiny)
         {
             SourceProperty = source as PropertyInfo ?? throw new ArgumentNullException(nameof(source));
@@ -23,20 +28,69 @@ namespace CastForm.Rules
             }
         }
 
+        /// <summary>
+        /// Property Destiny
+        /// </summary>
         public PropertyInfo DestinyProperty { get; }
 
+        /// <summary>
+        /// Property Source
+        /// </summary>
         public PropertyInfo? SourceProperty { get; }
 
+        /// <summary>
+        /// Execute rule
+        /// </summary>
+        /// <param name="il">The <see cref="ILGenerator"/> that generate method  </param>
+        /// <param name="fields">The <see cref="IReadOnlyDictionary{TKey, TValue}"/> that have all field in class that was already added.</param>
+        /// <param name="localFields">The <see cref="IReadOnlyDictionary{TKey, TValue}"/> that have all locals field that was already added.</param>
+        /// <param name="mapperProperties">The <see cref="IEnumerable{MapperProperty}"/> that have map.</param>
         public void Execute(ILGenerator il, IReadOnlyDictionary<string, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields, IEnumerable<MapperProperty> mapperProperties)
         {
             if (DestinyProperty.PropertyType.IsNullable())
             {
                 // based on https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYGYAE9MGFMiYCSAsgIYAOmA3qpvdlgMpgC2FEApgEKbkUAKFuy4BBTAGcA9gFcATgGNOAShp0GGmAHZMAO04B3TMI491G+rRQWbxACaYAvJNmLOAOiJ2ANOYsBfAG4/f1RQlFRUDEwwXWBOOQAzMiViflQrDRMuXn4hNlNxaXklZWCUcKisHGzOUQy/aNjgexpMAHNOYEDJLp7wyrRquGMCnIbrBia4gH5W6g6+3u7MAaA==
+                // public class Map
+                // {
+                //      public SimpleB Map(SimpleA source)
+                //      {
+                //          return new SimpleB
+                //          {
+                //              Int = source.Int // This mapper is create this line
+                //          };
+                //      }
+                // }
+                // public class SimpleA
+                // {
+                //      public int Int { get; set;}
+                // }
+                // public class SimpleB
+                // {
+                //      public int? Int { get; set;}
+                // }
                 GenerateMapWithDestinyAsNullable(il);
             }
             else
             {
                 // based on https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYGYAE9MGFMiYCSAsgIYAOmA3qpvdlgMpgC2FEApgEKbkUAKFuy4BBTAGcA9gFcATgGNOAShp0GGmAHZMAO04B3TMI491G+rRQWbxACaYAvJNmLOAOiIOA/N8x3OADMyGQhgABpzCwBfAG4o6NRElFRUDEwwXWBOOWClYn5UKw0TLl5+ITZTcWl5JWV4lGS0rBxSzlEiqPTM4D8vGkwAc05gWMlR8eTmtFa4YyqyrusGHqz7QZGxie3poA===
+                // public class Map
+                // {
+                //      public SimpleB Map(SimpleA source)
+                //      {
+                //          return new SimpleB
+                //          {
+                //              Int = source.Int ?? default // This mapper is create this line
+                //          };
+                //      }
+                // }
+                // public class SimpleA
+                // {
+                //      public int? Int { get; set;}
+                // }
+                // public class SimpleB
+                // {
+                //      public int Int { get; set;}
+                // }
                 GenerateMapWithDestinyAsNotNullable(il, localFields);
             }
         }
