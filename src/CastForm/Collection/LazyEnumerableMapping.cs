@@ -26,7 +26,7 @@ namespace CastForm.Collection
         /// Execute Map
         /// </summary>
         /// <param name="source">object to be map</param>
-        /// <returns>new instance of <see cref="HashSet{TDestiny}"/></returns>
+        /// <returns>new instance of <see cref="IEnumerable{TDestiny}"/></returns>
         public IEnumerable<TDestiny> Map(IEnumerable<TSource> source) 
             => new MappingEnumerable(source.GetEnumerator(), _map);
 
