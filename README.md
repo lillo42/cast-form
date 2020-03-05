@@ -42,13 +42,13 @@ PM> Install-Package CastForm
 
 ### Current limitation
 
-- Not support circle reference
+- Not support ```IAsyncEnumerable<T>```
 - Not support expression
 
 
 ### Do you have an issue?
 
-You might want to know exactly what [your mapping does](https://<To add>) at runtime.
+You might want to know exactly what [your mapping does](https://github.com/lillo42/cast-form/wiki/How-it-works%3F) at runtime.
 
 If you're still running into problems, file an issue above.
 
