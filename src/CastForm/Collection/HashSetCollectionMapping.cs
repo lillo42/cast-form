@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace CastForm.Collection
 {
     /// <summary>
-    /// Map as HashSet
+    /// Map <see cref="IEnumerable{T}"/> to <see cref="HashSet{T}"/>
     /// </summary>
     /// <typeparam name="TSource">Source type</typeparam>
     /// <typeparam name="TDestiny">Destination type to create</typeparam>
@@ -12,11 +12,20 @@ namespace CastForm.Collection
     {
         private readonly IMap<TSource, TDestiny> _map;
 
+        /// <summary>
+        /// Initialize a new instance of <see cref="HashSetCollectionMapping{TSource, TDestiny}"/>
+        /// </summary>
+        /// <param name="map">The <see cref="IMap{TSource, TDestiny}"/> implementation to use when map <typeparamref name="TSource"/> to  <typeparamref name="TDestiny"/></param>
         public HashSetCollectionMapping(IMap<TSource, TDestiny> map)
         {
             _map = map ?? throw new ArgumentNullException(nameof(map));
         }
 
+        /// <summary>
+        /// Execute Map
+        /// </summary>
+        /// <param name="source">object to be map</param>
+        /// <returns>new instance of <see cref="HashSet{TDestiny}"/></returns>
         public HashSet<TDestiny> Map(IEnumerable<TSource> source)
         {
             var collection = new HashSet<TDestiny>();
@@ -31,7 +40,7 @@ namespace CastForm.Collection
     }
 
     /// <summary>
-    /// Map as ISet
+    /// Map <see cref="IEnumerable{T}"/> to <see cref="ISet{T}"/>
     /// </summary>
     /// <typeparam name="TSource">Source type</typeparam>
     /// <typeparam name="TDestiny">Destination type to create</typeparam>
@@ -39,11 +48,20 @@ namespace CastForm.Collection
     {
         private readonly IMap<TSource, TDestiny> _map;
 
+        /// <summary>
+        /// Initialize a new instance of <see cref="ISetCollectionMapping{TSource, TDestiny}"/>
+        /// </summary>
+        /// <param name="map">The <see cref="IMap{TSource, TDestiny}"/> implementation to use when map <typeparamref name="TSource"/> to  <typeparamref name="TDestiny"/></param>
         public ISetCollectionMapping(IMap<TSource, TDestiny> map)
         {
             _map = map ?? throw new ArgumentNullException(nameof(map));
         }
 
+        /// <summary>
+        /// Execute Map
+        /// </summary>
+        /// <param name="source">object to be map</param>
+        /// <returns>new instance of <see cref="ISet{TDestiny}"/></returns>
         public ISet<TDestiny> Map(IEnumerable<TSource> source)
         {
             var collection = new HashSet<TDestiny>();

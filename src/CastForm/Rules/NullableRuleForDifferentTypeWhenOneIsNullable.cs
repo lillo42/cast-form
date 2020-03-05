@@ -12,6 +12,11 @@ namespace CastForm.Rules
     /// </summary>
     public class NullableRuleForDifferentTypeWhenOneIsNullable : IRuleMapper, IRuleNeedLocalField
     {
+        /// <summary>
+        /// Initialize a new instance of <see cref="NullableRuleForDifferentTypeWhenOneIsNullable"/>
+        /// </summary>
+        /// <param name="source">The source member</param>
+        /// <param name="destiny">The source member</param>
         public NullableRuleForDifferentTypeWhenOneIsNullable(MemberInfo source, MemberInfo destiny)
         {
             SourceProperty = source as PropertyInfo ?? throw new ArgumentNullException(nameof(source));
@@ -23,20 +28,69 @@ namespace CastForm.Rules
             }
         }
 
+        /// <summary>
+        /// Property Destiny
+        /// </summary>
         public PropertyInfo DestinyProperty { get; }
 
+        /// <summary>
+        /// Property Source
+        /// </summary>
         public PropertyInfo? SourceProperty { get; }
 
+        /// <summary>
+        /// Execute rule
+        /// </summary>
+        /// <param name="il">The <see cref="ILGenerator"/> that generate method  </param>
+        /// <param name="fields">The <see cref="IReadOnlyDictionary{TKey, TValue}"/> that have all field in class that was already added.</param>
+        /// <param name="localFields">The <see cref="IReadOnlyDictionary{TKey, TValue}"/> that have all locals field that was already added.</param>
+        /// <param name="mapperProperties">The <see cref="IEnumerable{MapperProperty}"/> that have map.</param>
         public void Execute(ILGenerator il, IReadOnlyDictionary<string, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields, IEnumerable<MapperProperty> mapperProperties)
         {
             if (DestinyProperty.PropertyType.IsNullable())
             {
                 // based on https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYGYAE9MGFMiYCSAsgIYAOmA3qpvdlgMpgC2FEApgEKbkUAKFuy4BBTAGcA9gFcATgGNOAShp0GGmAHZMAO04B3TMI491G+rRQWbxACaYAvHim6AbpznAAdABUpRLrA6HAC0vJK3kR2ygA05hYAvgDcCYmo6SioqBiYYEGeAGZkSsT8qFYaJly8/EJspuLhiiqpKJk5WDjVnKIVCbkQrgDm9jSYw5zAyZJTM5kdaF1wxg01/dYMufnAAPxj1BNzs9OYC0A===
+                // public class Map
+                // {
+                //      public SimpleB Map(SimpleA source)
+                //      {
+                //          return new SimpleB
+                //          {
+                //              Int = Convert.ToInt32(source.Long) // This mapper is create this line
+                //          };
+                //      }
+                // }
+                // public class SimpleA
+                // {
+                //      public long Long { get; set;}
+                // }
+                // public class SimpleB
+                // {
+                //      public int? Int { get; set;}
+                // }
                 GenerateMapWithDestinyAsNullable(il);
             }
             else
             {
                 // based on https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYGYAE9MGFMiYCSAsgIYAOmA3qpvdlgMpgC2FEApgEKbkUAKFuy4BBTAGcA9gFcATgGNOAShp0GGmAHZMAO04B3TMI491G+rRQWbxACaYAvHim6AbpznAAdABUpRLrA6HAC0vJK3kQOAPwxmHacAGZkMhDAyuYWAL4A3FnZqIUoqKgYmGBBnilKxPyoVhomXLz8Qmym4uGKKvkoxWVYOM2cog1Z5RCuAObx0TSY05zAuZLLq8UDaENwxh0t49YM5ZXA9gtLK2tXm0A===
+                // public class Map
+                // {
+                //      public SimpleB Map(SimpleA source)
+                //      {
+                //          return new SimpleB
+                //          {
+                //              Int = Convert.ToInt32(source.Long ?? source.Int) // This mapper is create this line
+                //          };
+                //      }
+                // }
+                // public class SimpleA
+                // {
+                //      public long? Long { get; set;}
+                // }
+                // public class SimpleB
+                // {
+                //      public int Int { get; set;}
+                // }
                 GenerateMapWithDestinyAsNotNullable(il, localFields);
             }
         }

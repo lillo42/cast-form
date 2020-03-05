@@ -16,6 +16,12 @@ namespace CastForm.Rules
 
         private readonly string _mapName;
         private readonly HashCodeFactoryGenerator _hashCodeFactory;
+
+        /// <summary>
+        /// Initialize a new instance of <see cref="DifferentTypeRule"/>
+        /// </summary>
+        /// <param name="source">The source member</param>
+        /// <param name="destiny">The source member</param>
         public DifferentTypeRule(MemberInfo source, MemberInfo destiny, HashCodeFactoryGenerator hashCodeFactory)
         {
             _hashCodeFactory = hashCodeFactory;
@@ -35,9 +41,23 @@ namespace CastForm.Rules
             Fields = fields;
         }
 
+        /// <summary>
+        /// Property Destiny
+        /// </summary>
         public PropertyInfo DestinyProperty { get; }
+
+        /// <summary>
+        /// Property Source
+        /// </summary>
         public PropertyInfo? SourceProperty { get; }
 
+        /// <summary>
+        /// Execute rule
+        /// </summary>
+        /// <param name="il">The <see cref="ILGenerator"/> that generate method  </param>
+        /// <param name="fields">The <see cref="IReadOnlyDictionary{TKey, TValue}"/> that have all field in class that was already added.</param>
+        /// <param name="localFields">The <see cref="IReadOnlyDictionary{TKey, TValue}"/> that have all locals field that was already added.</param>
+        /// <param name="mapperProperties">The <see cref="IEnumerable{MapperProperty}"/> that have map.</param>
         public void Execute(ILGenerator il, IReadOnlyDictionary<string, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields, IEnumerable<MapperProperty> mapperProperties)
         {
             var builder = fields[_mapName];
@@ -48,6 +68,46 @@ namespace CastForm.Rules
             if (mapperProperties.Count(x => x.GetHashCode() == mapper.GetHashCode()) > 1)
             {
                 // https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYAYAEMEDoDCA9hBAKYDGwYhAdgM4G3kCuATq6TcANyqowBmbHExFmXUq1QBvVJnmYADqzAA3AIbBSmDuoAmtCAE9MAJXU0DAW0wB9VheuYAvJhqkA7mceErACgBKXhQFJRUNLR1SfUMTIhoWdk5gABEwSmoadVYjAB4wLgAaTALgAD47K3VFRUkXN09RJjYOLjSM2my80uLSssDguQVBEq5MAHFSYDEJVj9SzAALdTpFoj1SAKH5WRDQhVsqmslcABUcyeAANXUIZlI/ZdX10mLCZmBMDVZMcnfZoLbfaHaq1VgAbSea0IGwAuvUANQIv7iLSsQZ7fbYADsv3+aOCoQAvnxMdghDAACyiMgWeZjKEvAIuCog46sM45UykKyEVQPRkw16Yd6fWyAlBAkYLS7mSy+QJA0LOVkOeVWXAAOVIAA9gANUCTJWgKSIALKgyQAQVOhAAQpgQJgAJIWxS5ADKYCsijIVuKXp9ZDtZRkUqEruqnu9vtIdoDMb9FTttqthIUyjUmm0ugMNGMTVRdVsKNm6fkmYi2hwADYojF8yYFrYAEYrUgACRW0I29S7zyFjCsLYKD2ARlqhAAZn5A7GrQFiuPJzO58GAhLQiM13HMG7Z4nSFbMHR3qxyJsgbssfJviezxf+z3tK4ny8hyP3H5W+230LipM7gOFoeh/hsuCXGBDynmwF4bhiN5fNkUR0MwECfK47heDudpKgo16IQoHq+FMiwFAA5iIrgwee2gAISYWhECYAAZCxdilmiEFTDMaJ+DRj7dkymC5JgQgAPyYCmhBWrg+4CaQuDEVYpEUcyTo0ExhR4fIRIITeJb4ic+C0jQ/EPp2QlChKOk4ihaE8ECRpGvwFIIHW8ATJwkjZqBVkbGGZIjLWoyfJB/kPDux50IeC62SqmBQR+o78bF4m4M6egSi5xrSrMU7qBeLpup6xQpKGKAEfIKR7tUs73rBmzBDlwUiFFgVbkICyZZg0iYORUzcCeg2YEanWYDhE0kcAZE0ORvX9SNdAjc5pKtRNh64ZV4ahS6egLQNPDDUdY3DEIUVTSpM0USIfWHUNy0nYaQA=
+                // public class Map
+                // {
+                //      private readonly IServiceProvider _provider;
+                //      private bool _isInit;
+                //      private IMap _map;
+                //      private Counter _counter;
+                //
+                //      public Map(IServiceProvider provider)
+                //      {
+                //          _provider = provider;
+                //      }
+                //      
+                //      private void Init()
+                //      {
+                //          if(!_isInit)
+                //          {
+                //              _map = (IMap)_provider.GetService(typeof(IMap));
+                //              _counter = (Counter)_provider.GetService(typeof(Counter));
+                //              _isInit = true;
+                //          }
+                //          
+                //      }
+                //
+                //      public SimpleB Map(SimpleA source)
+                //      {
+                //          return new SimpleB
+                //          {
+                //              Bar = source != null && _counter.GetCounter(HashCodeFactory.GenHashCode(source.Foo)) < 3 ? _map.Map(source.Foo) : null // This mapper is create this line
+                //          };
+                //      }
+                // }
+                // public class SimpleA
+                // {
+                //      public Foo Foo { get; set;}
+                // }
+                // public class SimpleB
+                // {
+                //      public Bar Bar { get; set;}
+                // }
+
                 var counter = fields["_counter"];
                 var getCounter = typeof(Counter).GetMethod(nameof(Counter.GetCounter));
                 var hashCode = _hashCodeFactory.Type.GetMethod("GenHashCode", new[] { SourceProperty!.DeclaringType });
@@ -84,6 +144,44 @@ namespace CastForm.Rules
             else
             {
                 // https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYGYAE9MGFMiYCSAsgIYAOAPAMpgC2FEApgIIA0mdjLAQgHyYA3qkxjMFAE5gAbmWDNMk5mQAmAewB2EAJ7Fy1bk2a5ORlgBFBAfQDGAFXUWA3KPFuxGLg2O9MBgApzNkwAZ3UAV0lbZgBKYQ9xTwB2TE1mAHdvHmZeRKSRFCTi8Rp1emZgAAswTQBzTABeTDtHCwA6QPComPayiurautj2fPEAX1ciidRx1HmUVC9ahUkAMzIY/UpaditUQqSLf0ogsMjouKm5xbQsHGDWA8SvYPx+ypr64Uw6yucwv9MDcbkt7nBsr5ntNPFhgscPoNvkJfkDQkCQQsvA8fCxcNCkstNMBiKofn9gAD0ZTgS97ggAAyYezMAAeJJRFKpGLpmAARup1BBiKEAKKaMh8ljktE8lCgu7YCHwgniLwQLQNIhkzmymk3Qn0pks9kymnUgEgoA===
+                // public class Map
+                // {
+                //      private readonly IServiceProvider _provider;
+                //      private bool _isInit;
+                //      private IMap _map;
+                //
+                //      public Map(IServiceProvider provider)
+                //      {
+                //          _provider = provider;
+                //      }
+                //      
+                //      private void Init()
+                //      {
+                //          if(!_isInit)
+                //          {
+                //              _map = (IMap)_provider.GetService(typeof(IMap));
+                //              _isInit = true;
+                //          }
+                //          
+                //      }
+                //
+                //      public SimpleB Map(SimpleA source)
+                //      {
+                //          return new SimpleB
+                //          {
+                //              Bar = _map.Map(source.Foo) source.Short // This mapper is create this line
+                //          };
+                //      }
+                // }
+                // public class SimpleA
+                // {
+                //      public Foo Foo { get; set;}
+                // }
+                // public class SimpleB
+                // {
+                //      public Bar Bar { get; set;}
+                // }
+
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Ldfld, builder);
                 il.Emit(OpCodes.Ldarg_1);

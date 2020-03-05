@@ -8,7 +8,7 @@ using CastForm.Rules;
 namespace CastForm.Generator
 {
     /// <summary>
-    /// Generate Map for define source and destiny.
+    /// Generate <see cref="IMap"/> for define source and destiny.
     /// </summary>
     public class MapperGenerator
     {
@@ -26,6 +26,14 @@ namespace CastForm.Generator
 
         private static readonly MethodInfo s_getService = typeof(IServiceProvider).GetMethod(nameof(IServiceProvider.GetService));
         private static readonly MethodInfo s_getTypeFromHandle = typeof(Type).GetMethod(nameof(Type.GetTypeFromHandle));
+
+        /// <summary>
+        /// Initialize a new instance of <see cref="MapperGenerator"/>
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="destiny"></param>
+        /// <param name="rules"></param>
+        /// <param name="hashCodeFactoryGenerator"></param>
         public MapperGenerator(Type source, Type destiny, IEnumerable<IRuleMapper> rules, HashCodeFactoryGenerator hashCodeFactoryGenerator)
         {
             _source = source ?? throw new ArgumentNullException(nameof(source));
@@ -38,7 +46,7 @@ namespace CastForm.Generator
         }
 
         /// <summary>
-        /// Build IMap
+        /// Build  <see cref="IMap"/>
         /// </summary>
         /// <returns>Generated <see cref="IMap"/></returns>
         public Type Generate(IEnumerable<MapperProperty> mapperProperties)
