@@ -6,12 +6,12 @@
 
 ### What is Cast Form?
 
-Cast Form is a simple little library built to solve problem to map one object to another.
+Cast Form is a simple library built to solve problem to map an object to another.
 
 
 ### How do I get started?
 
-First, configure Cast Form to know what types you want to map, in the startup of your application:
+First, configure Cast Form to know the types you want to map, in the startup of your application:
 
 ```csharp
 var ampper = new MapperBuilder()
@@ -42,8 +42,8 @@ PM> Install-Package CastForm
 
 ### Current limitation
 
-- Not support ```IAsyncEnumerable<T>```
-- Not support expression
+- Does not support ```IAsyncEnumerable<T>```
+- Does not support expressions
 
 
 ### Do you have an issue?
