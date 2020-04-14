@@ -45,18 +45,12 @@ namespace CastForm
 
         
         Type IMapperBuilder.Source => default!;
-        
 
         Type IMapperBuilder.Destiny => default!;
 
         IEnumerable<IRuleMapper> IMapperBuilder.Rules => Enumerable.Empty<IRuleMapper>();
 
-        /// <summary>
-        /// Add <see cref="IMapperBuilder"/>
-        /// </summary>
-        /// <typeparam name="TSource">Source type</typeparam>
-        /// <typeparam name="TDestiny">Destination type to create</typeparam>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public virtual IMapperBuilder<TSource, TDestiny> AddMapper<TSource, TDestiny>()
         {
             var mapper = new MapperBuilder<TSource, TDestiny>(this, _service, _hashCodeFactoryGenerator);
@@ -64,21 +58,14 @@ namespace CastForm
             return mapper;
         }
 
-        /// <summary>
-        /// Add <see cref="IMapperBuilder"/>
-        /// </summary>
-        /// <param name="mapperBuilder">The <see cref="IMapperBuilder"/> to add </param>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public virtual IMapperBuilder AddMapper(IMapperBuilder mapperBuilder)
         {
             Mappers.Add(mapperBuilder);
             return this;
         }
 
-        /// <summary>
-        /// Create a new instance of <see cref="IMapper"/>
-        /// </summary>
-        /// <returns>New instance of <see cref="IMapper"/></returns>
+        /// <inheritdoc/>
         public virtual IMapper Build()
         {
             var mappers = new LinkedList<MapperProperty>();
@@ -115,10 +102,7 @@ namespace CastForm
                 .GetRequiredService<IMapper>();
         }
 
-        /// <summary>
-        /// Create <see cref="IMapper"/> and register in <see cref="IServiceCollection"/>
-        /// </summary>
-        /// <param name="mapperProperties"></param>
+        /// <inheritdoc/>
         public virtual void Register(IEnumerable<MapperProperty> mapperProperties) 
             => Build(mapperProperties);
     }
