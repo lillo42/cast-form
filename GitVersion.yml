@@ -1,0 +1,15 @@
+mode: ContinuousDelivery
+
+assembly-versioning-scheme: '{Major}.{Minor}'
+assembly-file-versioning-scheme: '{Major}.{Minor}.{Patch}'
+
+branches:
+  master:
+    tag: 'unstable'
+  pull-request:
+      tag: 'unstable'
+  release:
+    tag: 'beta'
+    
+ignore:
+  sha: []
