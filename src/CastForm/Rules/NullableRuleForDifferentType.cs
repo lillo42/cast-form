@@ -24,23 +24,13 @@ namespace CastForm.Rules
             LocalFields = new[] { SourceProperty.PropertyType, DestinyProperty.PropertyType };
         }
 
-        /// <summary>
-        /// Property Destiny
-        /// </summary>
+        /// <inheritdoc/>
         public PropertyInfo DestinyProperty { get; }
 
-        /// <summary>
-        /// Property Source
-        /// </summary>
+        /// <inheritdoc/>
         public PropertyInfo? SourceProperty { get; }
 
-        /// <summary>
-        /// Execute rule
-        /// </summary>
-        /// <param name="il">The <see cref="ILGenerator"/> that generate method  </param>
-        /// <param name="fields">The <see cref="IReadOnlyDictionary{TKey, TValue}"/> that have all field in class that was already added.</param>
-        /// <param name="localFields">The <see cref="IReadOnlyDictionary{TKey, TValue}"/> that have all locals field that was already added.</param>
-        /// <param name="mapperProperties">The <see cref="IEnumerable{MapperProperty}"/> that have map.</param>
+        /// <inheritdoc/>
         public void Execute(ILGenerator il, IReadOnlyDictionary<string, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields, IEnumerable<MapperProperty> mapperProperties)
         {
             // based on: https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYGYAE9MGFMDeqmJ2WAymALYAOEApgEKYCyAFJbQwIKYDOAewCuAJwDG9AJSFipOTADsmAHb0A7pk50mMlHP2kAckKoAjeiMwBefsPH0AdAEkAJg4ASAQz4A1TxCF6TAB+FXVMCAFlAHNgtlwogDcLYAcAFQEnZWAANgAWNkFRCWcXSWkQFSEICFkDAF8AbjrMetQ2lFQMbDhNam1uVCI9Um6wbNDXQkxo+mBG/jmFjvksPgALARFgULT6AA9gadn5xdOOjq6sHC0GRiGW7siY0OMzC2Ols+XHrFMAT2A9FCfgCQQIMy+fC+FyAA=
@@ -110,9 +100,7 @@ namespace CastForm.Rules
             return $"To{type.Name}";
         }
 
-        /// <summary>
-        /// Local filed used in Method
-        /// </summary>
-        public IEnumerable<Type> LocalFields { get; }
+        /// <inheritdoc/>
+        public IEnumerable<Type>? LocalFields { get; }
     }
 }

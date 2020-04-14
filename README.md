@@ -14,7 +14,7 @@ Cast Form is a simple library built to solve problem to map an object to another
 First, configure Cast Form to know the types you want to map, in the startup of your application:
 
 ```csharp
-var ampper = new MapperBuilder()
+var mapper = new MapperBuilder()
       .AddMapper<Foo, FooDto>()
       .AddMapper<Bar, BarDto>()
       .Build();
@@ -42,9 +42,7 @@ PM> Install-Package CastForm
 
 ### Current limitation
 
-- Does not support ```IAsyncEnumerable<T>```
-- Does not support expressions
-
+- Not support expression
 
 ### Do you have an issue?
 

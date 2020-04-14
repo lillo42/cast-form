@@ -12,16 +12,15 @@ namespace CastForm.Rules
     /// </summary>
     public class DifferentTypeRule : IRuleMapper, IRuleNeedField
     {
-        // based on https://sharplab.io/#v2:C4LglgNgPgAgTARgLACgYGYAE9MGFMiYCSAsgIYAOAPAMpgC2FEApgIIA0mdjLAQgHyYA3qkxjMFAE5gAbmWDNMk5mQAmAewB2EAJ7Fy1bk2a5ORlgBFBAfQDGAFXUWA3KPFuxGLg2O9MBgApzNkwAZ3UAV0lbZgBKYQ9xTwB2TE1mAHdvHmZeRKSRFCTi8Rp1emZgAAswTQBzTABeTDtHCwA6QPComPayiurautj2fPEAX1ciidRx1HmUVC9ahUkAMzIY/UpaditUQqSLf0ogsMjouKm5xbQsHGDWA8SvYPx+ypr64Uw6yucwv9MDcbkt7nBsr5ntNPFhgscPoNvkJfkDQkCQQsvA8fCxcNCkstNMBiKofn9gAD0ZTgS97ggAAyYezMAAeJJRFKpGLpmAARup1BBiKEAKKaMh8ljktE8lCgu7YCHwgniLwQLQNIhkzmymk3Qn0pks9kymnUgEgoA===
-
         private readonly string _mapName;
         private readonly HashCodeFactoryGenerator _hashCodeFactory;
 
         /// <summary>
-        /// Initialize a new instance of <see cref="DifferentTypeRule"/>
+        /// Initialize a new instance of <see cref="DifferentTypeRule"/>.
         /// </summary>
-        /// <param name="source">The source member</param>
-        /// <param name="destiny">The source member</param>
+        /// <param name="source">The source member.</param>
+        /// <param name="destiny">The source member.</param>
+        /// <param name="hashCodeFactory">The <see cref="HashCodeFactoryGenerator"/>.</param>
         public DifferentTypeRule(MemberInfo source, MemberInfo destiny, HashCodeFactoryGenerator hashCodeFactory)
         {
             _hashCodeFactory = hashCodeFactory;
@@ -41,23 +40,13 @@ namespace CastForm.Rules
             Fields = fields;
         }
 
-        /// <summary>
-        /// Property Destiny
-        /// </summary>
+        /// <inheritdoc/>
         public PropertyInfo DestinyProperty { get; }
 
-        /// <summary>
-        /// Property Source
-        /// </summary>
+        /// <inheritdoc/>
         public PropertyInfo? SourceProperty { get; }
 
-        /// <summary>
-        /// Execute rule
-        /// </summary>
-        /// <param name="il">The <see cref="ILGenerator"/> that generate method  </param>
-        /// <param name="fields">The <see cref="IReadOnlyDictionary{TKey, TValue}"/> that have all field in class that was already added.</param>
-        /// <param name="localFields">The <see cref="IReadOnlyDictionary{TKey, TValue}"/> that have all locals field that was already added.</param>
-        /// <param name="mapperProperties">The <see cref="IEnumerable{MapperProperty}"/> that have map.</param>
+        /// <inheritdoc/>
         public void Execute(ILGenerator il, IReadOnlyDictionary<string, FieldBuilder> fields, IReadOnlyDictionary<Type, LocalBuilder> localFields, IEnumerable<MapperProperty> mapperProperties)
         {
             var builder = fields[_mapName];
@@ -192,6 +181,7 @@ namespace CastForm.Rules
             
         }
 
+        /// <inheritdoc/>
         public IEnumerable<(string name, Type type)> Fields { get; }
     }
 }

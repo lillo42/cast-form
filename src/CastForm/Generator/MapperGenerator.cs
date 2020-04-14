@@ -168,6 +168,10 @@ namespace CastForm.Generator
             generator.Emit(OpCodes.Ret);
         }
 
+        /// <summary>
+        /// Create rules for source and destiny properties.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<IRuleMapper> CreateRules() 
             => CreateRules(_sourceProperties, _destinyProperties);
 
