@@ -10,17 +10,17 @@ namespace CastForm.Collection
     /// </summary>
     /// <typeparam name="TSource">Source type</typeparam>
     /// <typeparam name="TDestiny">Destination type to create</typeparam>
-    public class IAsynEnumerableMapping<TSource, TDestiny> : IMap<IAsyncEnumerable<TSource>, IAsyncEnumerable<TDestiny>>
+    public class IAsyncEnumerableMapping<TSource, TDestiny> : IMap<IAsyncEnumerable<TSource>, IAsyncEnumerable<TDestiny>>
     {
         private readonly Counter _counter;
         private readonly IMap<TSource, TDestiny> _map;
 
         /// <summary>
-        /// Initialize a new instance of <see cref="IAsynEnumerableMapping{TSource, TDestiny}"/>
+        /// Initialize a new instance of <see cref="IAsyncEnumerableMapping{TSource,TDestiny}"/>
         /// </summary>
         /// <param name="map">The <see cref="IMap{TSource, TDestiny}"/> implementation to use when map <typeparamref name="TSource"/> to  <typeparamref name="TDestiny"/></param>
         /// <param name="counter"></param>
-        public IAsynEnumerableMapping(IMap<TSource, TDestiny> map, Counter counter)
+        public IAsyncEnumerableMapping(IMap<TSource, TDestiny> map, Counter counter)
         {
             _map = map ?? throw new ArgumentNullException(nameof(map));
             _counter = counter ?? throw new ArgumentNullException(nameof(counter));
@@ -46,7 +46,7 @@ namespace CastForm.Collection
                 _map = map ?? throw new ArgumentNullException(nameof(map));
                 _source = source ?? throw new ArgumentNullException(nameof(source));
                 _counter = counter ?? throw new ArgumentNullException(nameof(counter));
-                Current = default;
+                Current = default!;
             }
 
             public IAsyncEnumerator<TDestiny> GetAsyncEnumerator(CancellationToken cancellationToken = new CancellationToken())
@@ -73,7 +73,7 @@ namespace CastForm.Collection
                     }
                 }
 
-                Current = default;
+                Current = default!;
                 return false;
             }
 
