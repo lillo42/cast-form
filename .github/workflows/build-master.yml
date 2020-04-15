@@ -9,8 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Run './build.sh Test'
-        run: ./build.sh Test
+    - name: Run './build.sh Test Pack'
+        run: ./build.sh Test Pack
     - uses: actions/upload-artifact@v1
         with:
         name: test-results
@@ -19,4 +19,7 @@ jobs:
         with:
         name: coverage-report.zip
         path: artifacts/coverage-report.zip
-  
+    - uses: actions/upload-artifact@v1
+        with:
+        name: packages
+        path: artifacts/packages

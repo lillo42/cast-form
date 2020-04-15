@@ -13,7 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		build.cmd = build.cmd
 		build.ps1 = build.ps1
 		build.sh = build.sh
-		.github\workflows\continuous.yml = .github\workflows\continuous.yml
 		Directory.Build.props = Directory.Build.props
 		GitVersion.yml = GitVersion.yml
 		LICENSE = LICENSE
@@ -25,6 +24,13 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{B6D6FF66-1B47-4D16-8723-885DDC6A6C72}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CastForm.Test", "tests\CastForm.Test\CastForm.Test.csproj", "{59534DA4-3ADE-4BF3-9C7B-ACB7C5069277}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{16480B8F-1779-4685-9535-219FBF46F7A8}"
+ProjectSection(SolutionItems) = preProject
+	.github\workflows\build-master.yml = .github\workflows\build-master.yml
+	.github\workflows\pull-request.yml = .github\workflows\pull-request.yml
+	.github\workflows\release.yml = .github\workflows\release.yml
+EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -77,6 +83,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{5EBEC777-2409-44C6-8EA3-33DF6463AA6C} = {E2E80DE7-E63B-4AB2-A836-1285FDE58B1F}
 		{59534DA4-3ADE-4BF3-9C7B-ACB7C5069277} = {B6D6FF66-1B47-4D16-8723-885DDC6A6C72}
+		{16480B8F-1779-4685-9535-219FBF46F7A8} = {067728ED-B93A-4E31-BCCB-AAECA5C1A085}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {85BFD45E-418A-442E-BD53-CCAC9C509126}

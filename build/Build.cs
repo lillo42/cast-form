@@ -117,26 +117,26 @@ class Build : NukeBuild
         .TriggeredBy(Test)
         .Consumes(Test)
         .Produces(CoverageReportArchive)
-        .Requires(() => InvokedTargets.Contains(Coverage) || IsServerBuild)
         .Executes(() =>
         {
-            ReportGenerator(_ => _
-                .SetReports(TestResultDirectory / "*.xml")
-                .SetReportTypes(ReportTypes.HtmlInline)
-                .SetTargetDirectory(CoverageReportDirectory)
-                .SetFramework("netcoreapp2.1"));
-            
-            CompressZip(
-                directory: CoverageReportDirectory,
-                archiveFile: CoverageReportArchive,
-                fileMode: FileMode.Create);
+            if (InvokedTargets.Contains(Coverage) || IsServerBuild)
+            {
+                ReportGenerator(_ => _
+                    .SetReports(TestResultDirectory / "*.xml")
+                    .SetReportTypes(ReportTypes.HtmlInline)
+                    .SetTargetDirectory(CoverageReportDirectory)
+                    .SetFramework("netcoreapp2.1"));
+
+                CompressZip(
+                    directory: CoverageReportDirectory,
+                    archiveFile: CoverageReportArchive,
+                    fileMode: FileMode.Create);
+            }
         });
 
 
     Target Pack => _ => _
         .DependsOn(Compile)
-        .Requires(() => ApiKey)
-        .Requires(() => Configuration.Equals(Configuration.Release))
         .Produces(PackageDirectory / "*.nupkg")
         .Produces(PackageDirectory / "*.snupkg")
         .Executes(() =>
