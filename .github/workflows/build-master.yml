@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Run './build.sh Test Pack'
-        run: ./build.sh Test Pack
+      run: ./build.sh Test Pack
     - uses: actions/upload-artifact@v1
         with:
         name: test-results

@@ -8,4 +8,4 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Run './build.sh Test'
-        run: ./build.sh Test
+      run: ./build.sh Test
