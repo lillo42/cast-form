@@ -22,11 +22,7 @@ namespace CastForm.Collection
             _map = map ?? throw new ArgumentNullException(nameof(map));
         }
 
-        /// <summary>
-        /// Execute Map
-        /// </summary>
-        /// <param name="source">object to be map</param>
-        /// <returns>new instance of <see cref="IEnumerable{TDestiny}"/></returns>
+        /// <inheritdoc/>
         public IEnumerable<TDestiny> Map(IEnumerable<TSource> source) 
             => new MappingEnumerable(source.GetEnumerator(), _map);
 
@@ -47,48 +43,36 @@ namespace CastForm.Collection
             {
                 _source = source ?? throw new ArgumentNullException(nameof(source));
                 _map = map ?? throw new ArgumentNullException(nameof(map));
-                Current = default;
+                Current = default!;
             }
 
             
+            /// <inheritdoc/>
             public bool MoveNext()
             {
                 var move = _source.MoveNext();
 
-                if (move)
-                {
-                    Current = _map.Map(_source.Current);
-                }
-                else
-                {
-                    Current = default;
-                }
+                Current = move ? _map.Map(_source.Current) : default!;
 
                 return move;
             }
-
-            /// <summary>
-            /// 
-            /// </summary>
+            
+            /// <inheritdoc/>
             public void Reset()
             {
                 _source.Reset();
             }
 
+            /// <inheritdoc/>
             public TDestiny Current { get; private set; }
 
-            object IEnumerator.Current => Current;
-
-            /// <summary>
-            /// 
-            /// </summary>
+            object? IEnumerator.Current => Current;
+            
+            /// <inheritdoc/>
             public void Dispose() 
                 => _source.Dispose();
 
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <returns></returns>
+            /// <inheritdoc/>
             public IEnumerator<TDestiny> GetEnumerator() 
                 => this;
 

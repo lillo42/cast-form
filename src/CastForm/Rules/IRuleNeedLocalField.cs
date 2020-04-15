@@ -11,6 +11,6 @@ namespace CastForm.Rules
         /// <summary>
         /// Local filed used in Method
         /// </summary>
-        IEnumerable<Type> LocalFields { get; }
+        IEnumerable<Type>? LocalFields { get; }
     }
 }

@@ -5,15 +5,23 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CastForm
 {
+    /// <summary>
+    /// Default implementation of <see cref="IMapper"/>.
+    /// </summary>
     public class Mapper : IMapper
     {
         private readonly IServiceProvider _provider;
 
-        public Mapper(IServiceProvider mappers)
+        /// <summary>
+        /// Initialize a new instance of <see cref="Mapper"/>.
+        /// </summary>
+        /// <param name="serviceProvider">The <see cref="IServiceProvider"/> to resolve mapper.</param>
+        public Mapper(IServiceProvider serviceProvider)
         {
-            _provider = mappers ?? throw new ArgumentNullException(nameof(mappers));
+            _provider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
+        /// <inheritdoc/>
         public TDestiny Map<TSource, TDestiny>(TSource source)
         {
             try
@@ -27,6 +35,7 @@ namespace CastForm
             }
         }
 
+        /// <inheritdoc/>
         public TDestiny Map<TDestiny>(object source)
         {
             var sourceType = source.GetType();

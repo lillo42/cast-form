@@ -21,18 +21,14 @@ namespace CastForm.Collection
             _map = map ?? throw new ArgumentNullException(nameof(map));
         }
 
-        /// <summary>
-        /// Execute Map
-        /// </summary>
-        /// <param name="source">object to be map</param>
-        /// <returns>new instance of <see cref="HashSet{TDestiny}"/></returns>
+        /// <inheritdoc/>
         public HashSet<TDestiny> Map(IEnumerable<TSource> source)
         {
             var collection = new HashSet<TDestiny>();
 
             foreach (var item in source)
             {
-                collection.Add(item == null ? default : _map.Map(item));
+                collection.Add(item == null ? default! : _map.Map(item));
             }
 
             return collection;
@@ -57,18 +53,14 @@ namespace CastForm.Collection
             _map = map ?? throw new ArgumentNullException(nameof(map));
         }
 
-        /// <summary>
-        /// Execute Map
-        /// </summary>
-        /// <param name="source">object to be map</param>
-        /// <returns>new instance of <see cref="ISet{TDestiny}"/></returns>
+        /// <inheritdoc/>
         public ISet<TDestiny> Map(IEnumerable<TSource> source)
         {
             var collection = new HashSet<TDestiny>();
 
             foreach (var item in source)
             {
-                collection.Add(item == null ? default : _map.Map(item));
+                collection.Add(item == null ? default! : _map.Map(item));
             }
 
             return collection;

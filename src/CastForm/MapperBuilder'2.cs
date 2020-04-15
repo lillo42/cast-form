@@ -79,6 +79,9 @@ namespace CastForm
             return this;
         }
 
+        IMapper IMapperBuilder.Build() 
+            => _parent.Build();
+        
         /// <summary>
         /// Register Type in <see cref="IServiceCollection"/>
         /// </summary>
@@ -110,9 +113,6 @@ namespace CastForm
             var iSet = typeof(ISetCollectionMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
             _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, ISet<TDestiny>>), iSet);
         }
-
-        IMapper IMapperBuilder.Build() 
-            => _parent.Build();
 
         /// <summary>
         /// Specific what property to property

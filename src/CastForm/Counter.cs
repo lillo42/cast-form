@@ -34,8 +34,8 @@ namespace CastForm
         public void Clean()
         {
             if (_counter.TryRemove(GenCurrentHashCode(), out var clean))
-            {
-               clean.Clear();
+            { 
+                clean.Clear();
             }
         }
 

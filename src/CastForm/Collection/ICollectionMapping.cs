@@ -21,18 +21,14 @@ namespace CastForm.Collection
             _map = map ?? throw new ArgumentNullException(nameof(map));
         }
 
-        /// <summary>
-        /// Execute Map
-        /// </summary>
-        /// <param name="source">object to be map</param>
-        /// <returns>new instance of <see cref="ICollection{TDestiny}"/></returns>
+        /// <inheritdoc/>
         public ICollection<TDestiny> Map(IEnumerable<TSource> source)
         {
             var collection = new LinkedList<TDestiny>();
 
             foreach (var item in source)
             {
-                collection.AddLast(item == null ? default : _map.Map(item));
+                collection.AddLast(item == null ? default! : _map.Map(item));
             }
 
             return collection;
