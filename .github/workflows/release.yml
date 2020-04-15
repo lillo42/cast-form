@@ -12,14 +12,14 @@ jobs:
     - name: Run './build.sh Test Publish'
         run: ./build.sh Test Publish --api-key ${{secrets.NUGET_TOKEN}}
     - uses: actions/upload-artifact@v1
-        with:
+      with:
         name: test-results
         path: artifacts/test-results
     - uses: actions/upload-artifact@v1
-        with:
+      with:
         name: coverage-report.zip
         path: artifacts/coverage-report.zip
     - uses: actions/upload-artifact@v1
-        with:
+      with:
         name: packages
         path: artifacts/packages
