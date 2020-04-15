@@ -22,11 +22,6 @@ using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
 [DotNetVerbosityMapping]
 [UnsetVisualStudioEnvironmentVariables]
 [ShutdownDotNetBuildServerOnFinish]
-[GitHubActions(
-    "continuous",
-    GitHubActionsImage.UbuntuLatest,
-    On = new [] {GitHubActionsTrigger.Push},
-    InvokedTargets = new []{ nameof(Test), nameof(Publish) })]
 class Build : NukeBuild
 {
     /// Support plugins are available for:
@@ -60,7 +55,7 @@ class Build : NukeBuild
     string CoverageReportDirectory => ArtifactsDirectory / "coverage-report";
     string CoverageReportArchive => ArtifactsDirectory / "coverage-report.zip";
     
-    IEnumerable<Project> TestProjects => Solution.GetProjects("*.Tests");
+    IEnumerable<Project> TestProjects => Solution.GetProjects("*.Test");
 
     Target Clean => _ => _
         .Before(Restore)
@@ -109,7 +104,7 @@ class Build : NukeBuild
                 .EnableNoRestore()
                 .When(InvokedTargets.Contains(Coverage) || IsServerBuild, _ => _
                     .EnableCollectCoverage()
-                    .SetCoverletOutputFormat(CoverletOutputFormat.cobertura)
+                    .SetCoverletOutputFormat(CoverletOutputFormat.opencover)
                     .When(IsServerBuild, _ => _.EnableUseSourceLink()))
                 .CombineWith(TestProjects, (_, v) => _
                     .SetProjectFile(v)
@@ -122,13 +117,14 @@ class Build : NukeBuild
         .TriggeredBy(Test)
         .Consumes(Test)
         .Produces(CoverageReportArchive)
+        .Requires(() => InvokedTargets.Contains(Coverage) || IsServerBuild)
         .Executes(() =>
         {
             ReportGenerator(_ => _
                 .SetReports(TestResultDirectory / "*.xml")
                 .SetReportTypes(ReportTypes.HtmlInline)
                 .SetTargetDirectory(CoverageReportDirectory)
-                .SetFramework("netcoreapp3.1"));
+                .SetFramework("netcoreapp2.1"));
             
             CompressZip(
                 directory: CoverageReportDirectory,
