@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Run './build.sh Test Publish'
-        run: ./build.sh Test Publish --api-key ${{secrets.NUGET_TOKEN}}
+      run: ./build.sh Test Publish --api-key ${{secrets.NUGET_TOKEN}}
     - uses: actions/upload-artifact@v1
       with:
         name: test-results
