@@ -44,6 +44,19 @@ namespace CastForm
                 sourceType = typeof(IEnumerable<>).MakeGenericType(sourceType.GetGenericArguments()[0]);
             }
 
+            if (source is IAsyncDisposable)
+            {
+                var interfaces = sourceType.GetInterfaces();
+                foreach (var @interface in interfaces)
+                {
+                    if (@interface.GetGenericTypeDefinition() == typeof(IAsyncEnumerable<>))
+                    {
+                        sourceType = typeof(IAsyncEnumerable<>).MakeGenericType(sourceType.GetGenericArguments()[0]);
+                        break;
+                    }
+                }
+            }
+
             var mapperType = typeof(IMap<,>).MakeGenericType(sourceType, typeof(TDestiny));
             var mapper = (IMap)_provider.GetRequiredService(mapperType);
 
