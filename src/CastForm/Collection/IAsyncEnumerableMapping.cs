@@ -46,38 +46,39 @@ namespace CastForm.Collection
                 _map = map ?? throw new ArgumentNullException(nameof(map));
                 _source = source ?? throw new ArgumentNullException(nameof(source));
                 _counter = counter ?? throw new ArgumentNullException(nameof(counter));
-                Current = default!;
             }
 
-            public IAsyncEnumerator<TDestiny> GetAsyncEnumerator(CancellationToken cancellationToken = new CancellationToken())
+            public IAsyncEnumerator<TDestiny> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             {
                 _cancellation = cancellationToken;
                 return this;
             }
 
-            public ValueTask DisposeAsync() 
+            public ValueTask DisposeAsync()
                 => _source.DisposeAsync();
 
-            public async ValueTask<bool> MoveNextAsync()
+            public async ValueTask<bool> MoveNextAsync() 
+                => await _source.MoveNextAsync() && !_cancellation.IsCancellationRequested;
+
+            public TDestiny Current
             {
-                if (await _source.MoveNextAsync() && !_cancellation.IsCancellationRequested)
+                get
                 {
+                    if (_source.Current == null)
+                    {
+                        return default!;
+                    }
+                    
                     try
                     {
-                        Current = _map.Map(_source.Current);
-                        return true;
+                        return _map.Map(_source.Current);
                     }
                     finally
                     {
                         _counter.Clean();
                     }
                 }
-
-                Current = default!;
-                return false;
             }
-
-            public TDestiny Current { get; private set; }
         }
     }
 }
