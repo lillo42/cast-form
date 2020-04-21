@@ -56,7 +56,7 @@ namespace CastForm.Collection
 
                 return move;
             }
-
+            
             /// <inheritdoc/>
             public void Reset()
             {
@@ -67,7 +67,7 @@ namespace CastForm.Collection
             public TDestiny Current { get; private set; }
 
             object? IEnumerator.Current => Current;
-
+            
             /// <inheritdoc/>
             public void Dispose() 
                 => _source.Dispose();

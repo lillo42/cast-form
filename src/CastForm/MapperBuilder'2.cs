@@ -81,7 +81,7 @@ namespace CastForm
 
         IMapper IMapperBuilder.Build() 
             => _parent.Build();
-
+        
         /// <summary>
         /// Register Type in <see cref="IServiceCollection"/>
         /// </summary>
@@ -94,7 +94,10 @@ namespace CastForm
 
             var enumerable = typeof(LazyEnumerableMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
             _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, IEnumerable<TDestiny>>), enumerable);
-
+            
+            var asyncEnumerable = typeof(IAsyncEnumerableMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
+            _service.TryAddSingleton(typeof(IMap<IAsyncEnumerable<TSource>, IAsyncEnumerable<TDestiny>>), asyncEnumerable);
+            
             var linkedList = typeof(ICollectionMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
             _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, ICollection<TDestiny>>), linkedList);
 
