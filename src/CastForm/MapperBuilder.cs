@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CastForm.Generator;
+using CastForm.RegisterServiceCollection;
 using CastForm.Rules;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -9,12 +10,12 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace CastForm
 {
     /// <summary>
-    /// 
+    /// Define rules of mapping. Implementation of <see cref="IMapperBuilder"/>
     /// </summary>
     public class MapperBuilder : IMapperBuilder
     {
         private readonly IServiceCollection _service;
-        private readonly HashCodeFactoryGenerator _hashCodeFactoryGenerator;
+        private readonly IHashCodeFactoryGenerator _hashCodeFactoryGenerator;
 
         /// <summary>
         /// Collection of <see cref="IMapperBuilder"/>
@@ -22,7 +23,7 @@ namespace CastForm
         public ICollection<IMapperBuilder> Mappers { get; }
 
         /// <summary>
-        /// Initialize a new instance of <see cref="MapperBuilder"/>
+        /// Initialize a new instance of <see cref="MapperBuilder"/>.
         /// </summary>
         public MapperBuilder()
             : this(new ServiceCollection())
@@ -33,7 +34,7 @@ namespace CastForm
         /// <summary>
         /// Initialize a new instance of <see cref="MapperBuilder"/>
         /// </summary>
-        /// <param name="service"></param>
+        /// <param name="service">The <see cref="IServiceCollection"/>.</param>
         public MapperBuilder(IServiceCollection service)
         {
             _service = service ?? throw new ArgumentNullException(nameof(service));
@@ -43,6 +44,19 @@ namespace CastForm
             _hashCodeFactoryGenerator = new HashCodeFactoryGenerator();
         }
 
+        /// <summary>
+        /// Initialize a new instance of <see cref="MapperBuilder"/>.
+        /// </summary>
+        /// <param name="service">The <see cref="IServiceCollection"/>.</param>
+        /// <param name="hashCodeFactoryGenerator">The <see cref="IHashCodeFactoryGenerator"/>.</param>
+        public MapperBuilder(IServiceCollection service, IHashCodeFactoryGenerator hashCodeFactoryGenerator)
+        {
+            _service = service ?? throw new ArgumentNullException(nameof(service));
+            Mappers = new LinkedList<IMapperBuilder>();
+            _service.TryAddSingleton<IMapper, Mapper>();
+            _service.TryAddSingleton<Counter>();
+            _hashCodeFactoryGenerator = hashCodeFactoryGenerator;
+        }
         
         Type IMapperBuilder.Source => default!;
 
@@ -62,6 +76,13 @@ namespace CastForm
         public virtual IMapperBuilder AddMapper(IMapperBuilder mapperBuilder)
         {
             Mappers.Add(mapperBuilder);
+            return this;
+        }
+
+        /// <inheritdoc/>
+        public IMapperBuilder AddRegisterServiceCollectionType(IRegisterServiceCollectionType registerType)
+        {
+            Registers.Add(registerType);
             return this;
         }
 

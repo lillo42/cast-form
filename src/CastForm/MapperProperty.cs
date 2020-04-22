@@ -29,7 +29,7 @@ namespace CastForm
         public PropertyInfo? SourceProperty { get; }
 
         /// <summary>
-        /// 
+        /// Initialize a new instance of <see cref="MapperProperty"/>.
         /// </summary>
         /// <param name="destiny"></param>
         /// <param name="destinyType"></param>

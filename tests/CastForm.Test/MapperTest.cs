@@ -67,7 +67,7 @@ namespace CastForm.Test
             
             var map = Substitute.For<IMap<int, string>>();
 
-            map.Map(input)
+            map.Map((object)input)
                 .Returns(output);
 
             _provider.GetService(typeof(IMap<int, string>))
@@ -78,7 +78,7 @@ namespace CastForm.Test
 
             map
                 .Received(1)
-                .Map(input);
+                .Map((object)input);
             
             _provider
                 .Received(1)

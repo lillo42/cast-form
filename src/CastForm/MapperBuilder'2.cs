@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using CastForm.Collection;
 using CastForm.Generator;
+using CastForm.RegisterServiceCollection;
 using CastForm.Rules;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -20,8 +20,8 @@ namespace CastForm
         private readonly ICollection<IRuleMapper> _rules = new List<IRuleMapper>();
         private readonly IMapperBuilder _parent;
         private readonly IServiceCollection _service;
-        private readonly MapperGenerator _generator;
-        private readonly HashCodeFactoryGenerator _hashCodeFactoryGenerator;
+        private readonly IMapperGenerator _generator;
+        private readonly IHashCodeFactoryGenerator _hashCodeFactoryGenerator;
 
         /// <summary>
         /// Initialize a new instance of <see cref="MapperBuilder{TSource, TDestiny}"/>
@@ -29,12 +29,22 @@ namespace CastForm
         /// <param name="parent">The parent of this mapper</param>
         /// <param name="service">The <see cref="IServiceCollection"/> to register type. </param>
         /// <param name="hashCodeFactoryGenerator">The <see cref="HashCodeFactoryGenerator"/> is used to create GenHashCode.</param>
-        public MapperBuilder(IMapperBuilder parent, IServiceCollection service, HashCodeFactoryGenerator hashCodeFactoryGenerator)
+        public MapperBuilder(IMapperBuilder parent, IServiceCollection service, IHashCodeFactoryGenerator hashCodeFactoryGenerator)
         {
             _parent = parent ?? throw new ArgumentNullException(nameof(parent));
             _service = service ?? throw new ArgumentNullException(nameof(service));
             _hashCodeFactoryGenerator = hashCodeFactoryGenerator;
             _generator = new MapperGenerator(typeof(TSource), typeof(TDestiny), _rules, hashCodeFactoryGenerator);
+        }
+        
+        
+        internal MapperBuilder(IMapperBuilder parent, IServiceCollection service, 
+            IHashCodeFactoryGenerator hashCodeFactoryGenerator, IMapperGenerator generator)
+        {
+            _parent = parent ?? throw new ArgumentNullException(nameof(parent));
+            _service = service ?? throw new ArgumentNullException(nameof(service));
+            _hashCodeFactoryGenerator = hashCodeFactoryGenerator;
+            _generator = generator;
         }
 
         /// <summary>
@@ -79,6 +89,13 @@ namespace CastForm
             return this;
         }
 
+        /// <inheritdoc/>
+        public IMapperBuilder AddRegisterServiceCollectionType(IRegisterServiceCollectionType registerType)
+        {
+            Registers.Add(registerType);
+            return this;
+        }
+
         IMapper IMapperBuilder.Build() 
             => _parent.Build();
         
@@ -92,26 +109,10 @@ namespace CastForm
 
             _service.TryAddSingleton(typeof(IMap<TSource, TDestiny>), mapper);
 
-            var enumerable = typeof(LazyEnumerableMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
-            _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, IEnumerable<TDestiny>>), enumerable);
-            
-            var asyncEnumerable = typeof(IAsyncEnumerableMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
-            _service.TryAddSingleton(typeof(IMap<IAsyncEnumerable<TSource>, IAsyncEnumerable<TDestiny>>), asyncEnumerable);
-            
-            var linkedList = typeof(ICollectionMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
-            _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, ICollection<TDestiny>>), linkedList);
-
-            var list = typeof(ListCollectionMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
-            _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, List<TDestiny>>), list);
-
-            var iList = typeof(IListCollectionMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
-            _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, IList<TDestiny>>), iList);
-
-            var hashSet = typeof(HashSetCollectionMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
-            _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, HashSet<TDestiny>>), hashSet);
-
-            var iSet = typeof(ISetCollectionMapping<,>).MakeGenericType(typeof(TSource), typeof(TDestiny));
-            _service.TryAddSingleton(typeof(IMap<IEnumerable<TSource>, ISet<TDestiny>>), iSet);
+            foreach (var register in Registers.RegisterTypes)
+            {
+                register.Register(typeof(TSource), typeof(TDestiny), _service);
+            }
         }
 
         /// <summary>
@@ -133,7 +134,7 @@ namespace CastForm
 
             if(source.Body.NodeType != ExpressionType.MemberAccess)
             {
-                throw new NotImplementedException();
+                throw new NotSupportedException();
             }
 
             var sourceProperty = ((source.Body as MemberExpression)!.Member as PropertyInfo)!;

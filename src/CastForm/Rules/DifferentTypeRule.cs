@@ -13,7 +13,7 @@ namespace CastForm.Rules
     public class DifferentTypeRule : IRuleMapper, IRuleNeedField
     {
         private readonly string _mapName;
-        private readonly HashCodeFactoryGenerator _hashCodeFactory;
+        private readonly IHashCodeFactoryGenerator _hashCodeFactory;
 
         /// <summary>
         /// Initialize a new instance of <see cref="DifferentTypeRule"/>.
@@ -21,7 +21,7 @@ namespace CastForm.Rules
         /// <param name="source">The source member.</param>
         /// <param name="destiny">The source member.</param>
         /// <param name="hashCodeFactory">The <see cref="HashCodeFactoryGenerator"/>.</param>
-        public DifferentTypeRule(MemberInfo source, MemberInfo destiny, HashCodeFactoryGenerator hashCodeFactory)
+        public DifferentTypeRule(MemberInfo source, MemberInfo destiny, IHashCodeFactoryGenerator hashCodeFactory)
         {
             _hashCodeFactory = hashCodeFactory;
             SourceProperty = source as PropertyInfo ?? throw new ArgumentNullException(nameof(source));

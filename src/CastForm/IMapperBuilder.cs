@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using CastForm.RegisterServiceCollection;
 using CastForm.Rules;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -40,6 +41,14 @@ namespace CastForm
         /// <param name="mapperBuilder">Instance to be add. </param>
         /// <returns>Current instance of <seealso cref="IMapperBuilder"/></returns>
         IMapperBuilder AddMapper(IMapperBuilder mapperBuilder);
+        
+        
+        /// <summary>
+        /// Add new instance of  <see cref="IRegisterServiceCollectionType"/>
+        /// </summary>
+        /// <param name="registerType">Instance to be add. </param>
+        /// <returns>Current instance of <seealso cref="IMapperBuilder"/></returns>
+        IMapperBuilder AddRegisterServiceCollectionType(IRegisterServiceCollectionType registerType);
 
 
         /// <summary>

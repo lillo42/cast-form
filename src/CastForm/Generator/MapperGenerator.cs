@@ -10,7 +10,7 @@ namespace CastForm.Generator
     /// <summary>
     /// Generate <see cref="IMap"/> for define source and destiny.
     /// </summary>
-    public class MapperGenerator
+    public class MapperGenerator : IMapperGenerator
     {
         private readonly Type _source;
         private readonly Type _destiny;
@@ -19,7 +19,7 @@ namespace CastForm.Generator
         private readonly PropertyInfo[] _destinyProperties;
         private readonly IEnumerable<IRuleMapper> _rules;
 
-        private readonly HashCodeFactoryGenerator _hashCodeFactoryGenerator;
+        private readonly IHashCodeFactoryGenerator _hashCodeFactoryGenerator;
 
         private const string s_serviceProvider = "_serviceProvider";
         private const string s_isInit = "_isInit";
@@ -34,7 +34,7 @@ namespace CastForm.Generator
         /// <param name="destiny"></param>
         /// <param name="rules"></param>
         /// <param name="hashCodeFactoryGenerator"></param>
-        public MapperGenerator(Type source, Type destiny, IEnumerable<IRuleMapper> rules, HashCodeFactoryGenerator hashCodeFactoryGenerator)
+        public MapperGenerator(Type source, Type destiny, IEnumerable<IRuleMapper> rules, IHashCodeFactoryGenerator hashCodeFactoryGenerator)
         {
             _source = source ?? throw new ArgumentNullException(nameof(source));
             _destiny = destiny ?? throw new ArgumentNullException(nameof(destiny));

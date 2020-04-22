@@ -11,7 +11,7 @@ namespace CastForm.Generator
     /// <summary>
     /// Create a class HashCodeFactory with methods calls GenHashCode with Type that was added.
     /// </summary>
-    public class HashCodeFactoryGenerator
+    public class HashCodeFactoryGenerator : IHashCodeFactoryGenerator
     {
         private readonly TypeBuilder _builder;
         private static readonly MethodInfo s_taskId = typeof(Task).GetProperty(nameof(Task.CurrentId), BindingFlags.Public | BindingFlags.Static).GetMethod;
@@ -48,10 +48,7 @@ namespace CastForm.Generator
             _builder = moduleBuilder.DefineType(typeName, typeAttributes, null, Type.EmptyTypes);
         }
 
-        /// <summary>
-        /// Add override GenHashCode with type
-        /// </summary>
-        /// <param name="type">Type parameter that should be received in GenHashCode</param>
+        /// <inheritdoc />
         public void Add(Type type)
         {
             if (!_typesRegister.Add(type))
@@ -70,14 +67,10 @@ namespace CastForm.Generator
             }
         }
 
-        /// <summary>
-        /// Build class to create HashCodeFactory
-        /// </summary>
+        /// <inheritdoc />
         public void Build() => _builder.CreateType();
 
-        /// <summary>
-        /// Type of HashCodeFactory.
-        /// </summary>
+        /// <inheritdoc />
         public Type Type => _builder;
 
         private void HasHashCode(Type type)

@@ -16,7 +16,7 @@ namespace CastForm.Collection
         private readonly IMap<TSource, TDestiny> _map;
 
         /// <summary>
-        /// Initialize a new instance of <see cref="IAsyncEnumerableMapping{TSource,TDestiny}"/>
+        /// Initialize a new instance of <see cref="IAsyncEnumerableMapping{TSource,TDestiny}"/>.
         /// </summary>
         /// <param name="map">The <see cref="IMap{TSource, TDestiny}"/> implementation to use when map <typeparamref name="TSource"/> to  <typeparamref name="TDestiny"/></param>
         /// <param name="counter"></param>
