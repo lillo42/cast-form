@@ -6,8 +6,12 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CastForm.RegisterServiceCollection
 {
+    /// <summary>
+    /// Implementation of <see cref="IRegisterServiceCollectionType"/> for <see cref="ListCollectionMapping{TSource, TDestiny}"/>
+    /// </summary>
     internal class RegisterListCollectionMapping : IRegisterServiceCollectionType
     {
+        /// <inheritdoc />
         public void Register(Type source, Type destiny, IServiceCollection service)
         {
             var enumerable = typeof(ListCollectionMapping<,>).MakeGenericType(source, destiny);

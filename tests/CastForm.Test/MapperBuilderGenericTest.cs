@@ -1,6 +1,7 @@
 ﻿using System;
 using CastForm.Generator;
 using CastForm.RegisterServiceCollection;
+using CastForm.Rules.Factories;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
@@ -100,6 +101,17 @@ namespace CastForm.Test
         {
             Assert.Throws<NotSupportedException>(() => _builder.For(x => x.GetId(), x => x.Id));
             Assert.Throws<NotSupportedException>(() => _builder.For(x => x.Number, x => x.GetId()));
+        }
+        
+        [Fact]
+        public void AddRuleFactory()
+        {
+            var register = Substitute.For<IRuleFactory>();
+            
+            _builder.AddRuleFactory(register)
+                .Should().Be(_builder);
+
+            Registers.RuleFactories.Should().Contain(register);
         }
         
         public class Foo

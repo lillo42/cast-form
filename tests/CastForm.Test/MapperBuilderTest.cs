@@ -5,6 +5,7 @@ using System.Reflection;
 using CastForm.Generator;
 using CastForm.RegisterServiceCollection;
 using CastForm.Rules;
+using CastForm.Rules.Factories;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
@@ -74,6 +75,17 @@ namespace CastForm.Test
                 .Should().Be(_mapper);
 
             Registers.RegisterTypes.Should().Contain(register);
+        }
+        
+        [Fact]
+        public void AddRuleFactory()
+        {
+            var register = Substitute.For<IRuleFactory>();
+            
+            _mapper.AddRuleFactory(register)
+                .Should().Be(_mapper);
+
+            Registers.RuleFactories.Should().Contain(register);
         }
         
         

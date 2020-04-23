@@ -39,7 +39,7 @@ namespace CastForm
         public TDestiny Map<TDestiny>(object source)
         {
             var sourceType = source.GetType();
-            if (source is IEnumerable)
+            if (source is IEnumerable && !(source is string))
             {
                 sourceType = typeof(IEnumerable<>).MakeGenericType(sourceType.GetGenericArguments()[0]);
             }

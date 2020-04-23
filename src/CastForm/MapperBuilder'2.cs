@@ -5,6 +5,7 @@ using System.Reflection;
 using CastForm.Generator;
 using CastForm.RegisterServiceCollection;
 using CastForm.Rules;
+using CastForm.Rules.Factories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -93,6 +94,13 @@ namespace CastForm
         public IMapperBuilder AddRegisterServiceCollectionType(IRegisterServiceCollectionType registerType)
         {
             Registers.Add(registerType);
+            return this;
+        }
+
+        /// <inheritdoc/>
+        public IMapperBuilder AddRuleFactory(IRuleFactory factory)
+        {
+            Registers.Add(factory);
             return this;
         }
 
