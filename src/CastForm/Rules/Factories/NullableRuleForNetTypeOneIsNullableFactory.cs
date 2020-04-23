@@ -6,12 +6,17 @@ namespace CastForm.Rules.Factories
     /// <summary>
     /// Rule Factory for <see cref="NullableRuleForSameTypeWhenOneIsNullable"/> and <see cref="NullableRuleForDifferentTypeWhenOneIsNullable"/>. 
     /// </summary>
-    public class NullableRuleForNetType : IRuleFactory
+    public class NullableRuleForNetTypeOneIsNullableFactory : IRuleFactory
     {
         /// <inheritdoc />
-        public bool CanCreateRule(PropertyInfo source, PropertyInfo destiny) 
-            => (source.PropertyType.IsNullable() && !destiny.PropertyType.IsNullable() && destiny.PropertyType.IsNetType())
-               || (!source.PropertyType.IsNullable() && destiny.PropertyType.IsNullable() && source.PropertyType.IsNetType());
+        public bool CanCreateRule(PropertyInfo source, PropertyInfo destiny)
+        {
+            var sourceIsNullable = source.PropertyType.IsNullable();
+            var destinyIsNullable = destiny.PropertyType.IsNullable();
+            
+            return source.PropertyType.GetUnderlyingType().IsNetType() && destiny.PropertyType.GetUnderlyingType().IsNetType() 
+                        && ((sourceIsNullable && !destinyIsNullable) || (!sourceIsNullable && destinyIsNullable)); 
+        }
 
         /// <inheritdoc />
         public IRuleMapper CreateRule(PropertyInfo source, PropertyInfo destiny, IHashCodeFactoryGenerator factoryGenerator)

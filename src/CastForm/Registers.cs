@@ -22,7 +22,7 @@ namespace CastForm
             
             s_defaultFactories.Add(new SameTypeRuleFactory());
             s_defaultFactories.Add(new DifferentNetTypeRuleFactory());
-            s_defaultFactories.Add(new NullableRuleForNetType());
+            s_defaultFactories.Add(new NullableRuleForNetTypeOneIsNullableFactory());
             s_defaultFactories.Add(new NullableRuleForDifferentTypeFactory());
             s_defaultFactories.Add(new DifferentTypeRuleFactory());
         }

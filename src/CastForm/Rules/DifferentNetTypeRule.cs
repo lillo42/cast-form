@@ -13,12 +13,12 @@ namespace CastForm.Rules
         /// <summary>
         /// Initialize a new instance of <see cref="DifferentNetTypeRule"/>
         /// </summary>
-        /// <param name="source">The source member</param>
-        /// <param name="destiny">The source member</param>
-        public DifferentNetTypeRule(MemberInfo source, MemberInfo destiny)
+        /// <param name="source">The source <see cref="PropertyInfo"/>.</param>
+        /// <param name="destiny">The destiny <see cref="PropertyInfo"/>.</param>
+        public DifferentNetTypeRule(PropertyInfo source, PropertyInfo destiny)
         {
-            SourceProperty = source as PropertyInfo ?? throw new ArgumentNullException(nameof(source));
-            DestinyProperty = destiny as PropertyInfo ?? throw new ArgumentNullException(nameof(destiny));
+            SourceProperty = source ?? throw new ArgumentNullException(nameof(source));
+            DestinyProperty = destiny ?? throw new ArgumentNullException(nameof(destiny));
         }
 
         /// <inheritdoc/>

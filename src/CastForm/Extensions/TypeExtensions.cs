@@ -6,7 +6,6 @@
             => type.IsPrimitive
                || type == typeof(string)
                || type == typeof(DateTime)
-               || type == typeof(DateTimeOffset)
                || type == typeof(decimal);
 
         public static bool IsNullable(this Type type)

@@ -10,7 +10,8 @@ namespace CastForm.Rules.Factories
     {
         /// <inheritdoc />
         public bool CanCreateRule(PropertyInfo source, PropertyInfo destiny) 
-            => source.PropertyType != destiny.PropertyType;
+            => !source.PropertyType.IsNetType() && !destiny.PropertyType.IsNetType() 
+                && source.PropertyType != destiny.PropertyType;
 
         /// <inheritdoc />
         public IRuleMapper CreateRule(PropertyInfo source, PropertyInfo destiny, IHashCodeFactoryGenerator factoryGenerator) 

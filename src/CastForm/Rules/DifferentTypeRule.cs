@@ -18,14 +18,14 @@ namespace CastForm.Rules
         /// <summary>
         /// Initialize a new instance of <see cref="DifferentTypeRule"/>.
         /// </summary>
-        /// <param name="source">The source member.</param>
-        /// <param name="destiny">The source member.</param>
+        /// <param name="source">The source <see cref="PropertyInfo"/>.</param>
+        /// <param name="destiny">The destiny <see cref="PropertyInfo"/>.</param>
         /// <param name="hashCodeFactory">The <see cref="HashCodeFactoryGenerator"/>.</param>
-        public DifferentTypeRule(MemberInfo source, MemberInfo destiny, IHashCodeFactoryGenerator hashCodeFactory)
+        public DifferentTypeRule(PropertyInfo source, PropertyInfo destiny, IHashCodeFactoryGenerator hashCodeFactory)
         {
             _hashCodeFactory = hashCodeFactory;
-            SourceProperty = source as PropertyInfo ?? throw new ArgumentNullException(nameof(source));
-            DestinyProperty = destiny as PropertyInfo ?? throw new ArgumentNullException(nameof(destiny));
+            SourceProperty = source ?? throw new ArgumentNullException(nameof(source));
+            DestinyProperty = destiny ?? throw new ArgumentNullException(nameof(destiny));
 
             _mapName = $"_map{SourceProperty.Name}To{DestinyProperty.Name}";
             var fields = new LinkedList<(string, Type)>();
