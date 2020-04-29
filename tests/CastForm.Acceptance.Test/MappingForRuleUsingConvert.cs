@@ -3,7 +3,7 @@ using AutoFixture;
 using FluentAssertions;
 using Xunit;
 
-namespace CastForm.Test
+namespace CastForm.Acceptance.Test
 {
     public class MappingForRuleUsingConvert
     {

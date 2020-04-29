@@ -5,7 +5,7 @@ using CastForm.Generator;
 namespace CastForm.Rules.Factories
 {
     /// <summary>
-    /// Create Rules
+    /// Create <see cref="IRuleMapper"/>.
     /// </summary>
     public interface IRuleFactory
     {

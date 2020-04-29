@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CastForm.Generator;
 using CastForm.RegisterServiceCollection;
 using CastForm.Rules.Factories;
@@ -16,6 +17,7 @@ namespace CastForm.Test
         private readonly IMapperBuilder _parent;
         private readonly IMapperGenerator _generator;
         private readonly MapperBuilder<Foo, Bar> _builder;
+        
         public MapperBuilderGenericTest()
         {
             _service = Substitute.For<IServiceCollection>();
@@ -113,6 +115,24 @@ namespace CastForm.Test
 
             Registers.RuleFactories.Should().Contain(register);
         }
+
+        [Fact]
+        public void Register()
+        {
+            var mapper = typeof(FakeMapper);
+            var properties = Substitute.For<IEnumerable<MapperProperty>>();
+            
+            _generator.Generate(properties)
+                .Returns(mapper);
+
+            
+            _builder.Register(properties);
+            
+
+            _generator
+                .Received(1)
+                .Generate(properties);
+        }
         
         public class Foo
         {
@@ -129,6 +149,14 @@ namespace CastForm.Test
             public string Value { get; set; }
 
             public int GetId() => Number;
+        }
+        
+        public class FakeMapper : IMap<Foo, Bar>
+        {
+            public Bar Map(Foo source)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

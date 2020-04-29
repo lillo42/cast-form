@@ -19,7 +19,8 @@ namespace CastForm
             s_defaultRegister.Add(new RegisterIListCollectionMapping());
             s_defaultRegister.Add(new RegisterISetCollectionMapping());
             s_defaultRegister.Add(new RegisterListCollectionMapping());
-            
+            s_defaultRegister.Add(new RegisterMapper());
+
             s_defaultFactories.Add(new SameTypeRuleFactory());
             s_defaultFactories.Add(new DifferentNetTypeRuleFactory());
             s_defaultFactories.Add(new NullableRuleForNetTypeOneIsNullableFactory());
@@ -32,9 +33,11 @@ namespace CastForm
         public static void Add(IRegisterServiceCollectionType registerServiceCollectionType) 
             => s_registers.Add(registerServiceCollectionType);
 
+        
         private static readonly List<IRuleFactory> s_factories = new List<IRuleFactory>();
         private static readonly List<IRuleFactory> s_defaultFactories = new List<IRuleFactory>();
         public static IEnumerable<IRuleFactory> RuleFactories => s_factories.Union(s_defaultFactories);
+        
         public static void Add(IRuleFactory factory) 
             => s_factories.Add(factory);
     }

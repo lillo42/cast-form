@@ -4,7 +4,7 @@ using AutoFixture;
 using FluentAssertions;
 using Xunit;
 
-namespace CastForm.Test.CircleReference
+namespace CastForm.Acceptance.Test.CircleReference
 {
     public class Circle
     {

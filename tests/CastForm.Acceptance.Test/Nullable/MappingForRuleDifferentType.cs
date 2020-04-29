@@ -2,7 +2,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace CastForm.Test.Nullable
+namespace CastForm.Acceptance.Test.Nullable
 {
     public class MappingForRuleDifferentType
     {

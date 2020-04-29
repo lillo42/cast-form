@@ -5,7 +5,7 @@ using AutoFixture;
 using FluentAssertions;
 using Xunit;
 
-namespace CastForm.Test.Collection
+namespace CastForm.Acceptance.Test.Collection
 {
     public class MappingIAsyncEnumerable
     {
