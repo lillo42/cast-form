@@ -23,8 +23,13 @@ namespace CastForm
             return new InternalMapperClass<TDestiny, TSource>();
         }
 
-        public MapperClass<TSource, TDestiny> For<TSourceMember, TDestinyMember>(
-            Expression<Func<TSource, TSourceMember>> source, Expression<Func<TDestiny, TDestinyMember>> destiny)
+        public MapperClass<TSource, TDestiny> For<TDestinyMember, TSourceMember>(
+            Expression<Func<TDestiny, TDestinyMember>> destiny, Expression<Func<TSource, TSourceMember>> source)
+        {
+            return this;
+        }
+        
+        public MapperClass<TSource, TDestiny> Ignore<TDestinyMember>(Expression<Func<TDestiny, TDestinyMember>> destiny)
         {
             return this;
         }

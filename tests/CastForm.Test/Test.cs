@@ -5,7 +5,7 @@
         public Test()
         {
             CreateMapper<Foo, Bar>()
-                .For(x => x.Id, x => x.Value);
+                .For(x => x.Value, x => x.Id);
         }
     }
 

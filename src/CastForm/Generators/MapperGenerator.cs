@@ -1,15 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using CastForm.Generators.Rules;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Text;
 
 namespace CastForm.Generators
 {
     /// <summary>
-    /// 
+    /// Mapper Generator
     /// </summary>
     [Generator]
     public class MapperGenerator : ISourceGenerator
@@ -29,7 +31,7 @@ namespace CastForm.Generators
             }
 
             var compilation = context.Compilation;
-            INamedTypeSymbol builderSymbol = compilation.GetTypeByMetadataName(nameof(MapperClass))!;
+            INamedTypeSymbol builderSymbol = compilation.GetTypeByMetadataName(typeof(MapperClass).FullName)!;
 
             var mapperBuilder = new List<ClassDeclarationSyntax>();
             foreach (var candidate in mapperReceiver.CandidateClass)
@@ -41,14 +43,13 @@ namespace CastForm.Generators
                     mapperBuilder.Add(candidate);
                 }
             }
-
             
             foreach (var mapper in mapperBuilder)
             {
-                var walker = new MapperWalker();
+                var walker = new MapperWalker(compilation);
                 walker.Visit(mapper);
 
-                if (walker.Mapper.Count == 0)
+                if (walker.Mappers.Count == 0)
                 {
                     continue;
                 }
@@ -56,117 +57,108 @@ namespace CastForm.Generators
                 var mapperModel = compilation.GetSemanticModel(mapper.SyntaxTree);
                 var mapperSymbol = mapperModel.GetDeclaredSymbol(mapper)!;
 
-                foreach (var ((from, to), rules) in walker.Mapper)
+                foreach (var mapperSyntax in walker.Mappers)
                 {
-                    var fromName = GetSimpleNameSyntax(from);
-                    var fromModel = compilation.GetSemanticModel(from.SyntaxTree);
-                    var fromSymbol = (SymbolFinder
-                        .FindSymbolAtPositionAsync(fromModel, fromName.SpanStart, new AdhocWorkspace())
-                        .GetAwaiter().GetResult() as INamedTypeSymbol)!;
-                    
-                    var toName = GetSimpleNameSyntax(to);
-                    var toModel = compilation.GetSemanticModel(to.SyntaxTree);
-                    var toSymbol = (SymbolFinder
-                        .FindSymbolAtPositionAsync(toModel, toName.SpanStart, new AdhocWorkspace())
-                        .GetAwaiter().GetResult() as INamedTypeSymbol)!;
-
-                    var sb = new StringBuilder()
-                        .AppendLine($"using {fromSymbol.ContainingNamespace.ToDisplayString()};");
-                    
-                    if (toSymbol.ContainingNamespace.ToDisplayString() != fromSymbol.ContainingNamespace.ToDisplayString())
-                    {
-                        sb.AppendLine($"using {toSymbol.ContainingNamespace.ToDisplayString()};");
-                    }
-
-                    sb
-                        .AppendLine($"namespace {mapperSymbol.ContainingNamespace.ToDisplayString()}")
-                        .AppendLine("{")
-                        .AppendLine($"    public class {from}To{to}Mapper : IMapper<{from}, {to}>")
-                        .AppendLine("    {")
-                        .AppendLine($"        public {to} Map({from} source)")
-                        .AppendLine("        {")
-                        .AppendLine($"            return new {to}")
-                        .AppendLine("            {");
-
-                    var toProperties = toSymbol.GetMembers().Where(x => x is IPropertySymbol).Cast<IPropertySymbol>();
-                    var fromProperties = fromSymbol.GetMembers().Where(x => x is IPropertySymbol).Cast<IPropertySymbol>().ToList();
-
-                    foreach (var property in toProperties)
-                    {
-                        if (fromProperties.Any(x => x.Name == property.Name))
-                        {
-                            sb.AppendLine($"                {property.Name} = source.{property.Name}");
-                        }
-                    }
-
-                    sb
-                        .AppendLine( "            }")
-                        .AppendLine( "        }") 
-                        .AppendLine( "    }") 
-                        .AppendLine( "}");   
+                    var @class = Process(mapperSyntax, mapperSymbol, compilation);
+                    context.AddSource($"{mapperSyntax.From}To{mapperSyntax.To}Mapper.cs", SourceText.From(@class, Encoding.UTF8));
                 }
             }
+        }
 
+        private static string Process(MapperSyntax mapperSyntax, INamedTypeSymbol mapperSymbol, Compilation compilation)
+        {
             static TypeSyntax GetSimpleNameSyntax(TypeSyntax syntax)
             {
-                if (syntax is QualifiedNameSyntax qualifiedNameSyntax)
+                while (true)
                 {
-                    return GetSimpleNameSyntax(qualifiedNameSyntax.Right);
-                }
-                
-                return syntax;
-            }
-        }
-
-        public class MapperReceiver : ISyntaxReceiver
-        {
-            public List<ClassDeclarationSyntax> CandidateClass { get; } = new List<ClassDeclarationSyntax>();
-
-            public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
-            {
-                if (syntaxNode is ClassDeclarationSyntax classDeclaration)
-                {
-                    CandidateClass.Add(classDeclaration);
-                }
-            }
-        }
-
-
-        public class MapperWalker : CSharpSyntaxWalker
-        {
-
-            public Dictionary<(TypeSyntax soruce, TypeSyntax destiny), List<(ArgumentSyntax source, ArgumentSyntax destiny)>> Mapper { get; } = new Dictionary<(TypeSyntax soruce, TypeSyntax destiny), List<(ArgumentSyntax source, ArgumentSyntax destiny)>>(); 
-            private readonly Stack<(ArgumentSyntax source, ArgumentSyntax destiny)> _properties = new Stack<(ArgumentSyntax source, ArgumentSyntax destiny)>();
-            
-            public MapperWalker()
-                : base(SyntaxWalkerDepth.StructuredTrivia)
-            {
-                
-            }
-            
-            public override void VisitInvocationExpression(InvocationExpressionSyntax node)
-            {
-                if (node.Expression is GenericNameSyntax genericNameSyntax)
-                {
-                    var generic = genericNameSyntax.TypeArgumentList;
-                    var key = (generic.Arguments[0], generic.Arguments[1]);
-                    if (!Mapper.TryGetValue(key, out var properties))
+                    if (syntax is QualifiedNameSyntax qualifiedNameSyntax)
                     {
-                        properties = new List<(ArgumentSyntax source, ArgumentSyntax destiny)>();
+                        syntax = qualifiedNameSyntax.Right;
+                        continue;
                     }
 
-                    while (_properties.TryPop(out var property))
-                    {
-                        properties.Add(property);
-                    }
+                    return syntax;
+                }
+            }
 
-                    Mapper[key] = properties;
-                }
-                else if (node.Expression is MemberAccessExpressionSyntax memberAccessExpressionSyntax && memberAccessExpressionSyntax.Name.ToString() == "For")
+            var source = mapperSyntax.From;
+            var sourceName = GetSimpleNameSyntax(source);
+            var sourceModel = compilation.GetSemanticModel(source.SyntaxTree);
+            var sourceSymbol = (SymbolFinder
+                .FindSymbolAtPositionAsync(sourceModel, sourceName.SpanStart, new AdhocWorkspace())
+                .GetAwaiter().GetResult() as INamedTypeSymbol)!;
+
+            var destiny = mapperSyntax.To;
+            var destinyName = GetSimpleNameSyntax(destiny);
+            var destinyModel = compilation.GetSemanticModel(destiny.SyntaxTree);
+            var destinySymbol = (SymbolFinder
+                .FindSymbolAtPositionAsync(destinyModel, destinyName.SpanStart, new AdhocWorkspace())
+                .GetAwaiter().GetResult() as INamedTypeSymbol)!;
+
+            var sb = new StringBuilder()
+                .AppendLine($"using {sourceSymbol.ContainingNamespace.ToDisplayString()};");
+
+            if (destinySymbol.ContainingNamespace.ToDisplayString() != sourceSymbol.ContainingNamespace.ToDisplayString())
+            {
+                sb.AppendLine($"using {destinySymbol.ContainingNamespace.ToDisplayString()};");
+            }
+
+            sb
+                .AppendLine($"namespace {mapperSymbol.ContainingNamespace.ToDisplayString()}")
+                .AppendLine( "{")
+                .AppendLine($"    public class {source}To{destiny}Mapper : IMapper<{source}, {destiny}>")
+                .AppendLine( "    {")
+                .AppendLine($"        public {destiny} Map({source} source)")
+                .AppendLine( "        {")
+                .AppendLine($"            var destiny = new {destiny}();");
+
+            var destinyProperties = destinySymbol.GetMembers().Where(x => x is IPropertySymbol).Cast<IPropertySymbol>();
+            var sourceProperties = sourceSymbol.GetMembers().Where(x => x is IPropertySymbol).Cast<IPropertySymbol>().ToList();
+
+            ProcessRule(destinyProperties, sourceProperties, mapperSyntax.Rules, sb);
+
+            sb
+                .AppendLine( "            return destiny;")
+                .AppendLine( "        }")
+                .AppendLine( "    }")
+                .AppendLine( "}");
+            return sb.ToString();
+        }
+
+
+        private static void ProcessRule(IEnumerable<IPropertySymbol> destinyProperties, 
+            IReadOnlyCollection<IPropertySymbol> sourceProperties, 
+            IReadOnlyCollection<IRule> rules, 
+            StringBuilder sb)
+        {
+            foreach (var property in destinyProperties)
+            {
+                var rule = rules.FirstOrDefault(x => x.Destiny.Name == property.Name);
+                
+                if (rule != null)
                 {
-                    _properties.Push((node.ArgumentList.Arguments[0], node.ArgumentList.Arguments[1]));
+                    ExecuteRule(rule, sb);
                 }
-                base.VisitInvocationExpression(node);
+
+                var sourceProperty = sourceProperties.FirstOrDefault(x => x.Name == property.Name);
+                if (sourceProperty != null)
+                {
+                    if (SymbolEqualityComparer.Default.Equals(property.Type, sourceProperty.Type))
+                    {
+                        ExecuteRule(new ForWithSameTypeRule(property, sourceProperty), sb);
+                    }
+                }
+            }
+
+            static void ExecuteRule(IRule rule, StringBuilder sb)
+            {
+                if (rule is IgnorePropertyRule)
+                {
+                    return;
+                }
+                
+                sb.Append("            ");
+                rule.Apply(sb);
             }
         }
     }
