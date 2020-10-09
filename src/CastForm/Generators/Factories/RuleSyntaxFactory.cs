@@ -26,7 +26,17 @@ namespace CastForm.Generators.Factories
             var destinyProperty = GetProperty(destiny, node.ArgumentList.Arguments[0]);
             if (method.Name == For)
             {
-                return new ForWithSameTypeRule(destinyProperty, GetProperty(source, node.ArgumentList.Arguments[1]));
+                var sourceProperty = GetProperty(source, node.ArgumentList.Arguments[1]);
+                
+                if (SymbolEqualityComparer.Default.Equals(sourceProperty.Type, destinyProperty.Type))
+                {
+                    return new ForEqualPrimitiveTypeRule(destinyProperty, sourceProperty);
+                }
+                
+                if (IsPrimitiveType(sourceProperty.Type) && IsPrimitiveType(destinyProperty.Type))
+                {
+                    return new ForDifferentPrimitiveTypeRule(destinyProperty, sourceProperty);
+                }
             }
 
             if (method.Name == Ignore)
@@ -51,6 +61,25 @@ namespace CastForm.Generators.Factories
             }
 
             throw new Exception();
+        }
+
+        private static bool IsPrimitiveType(ITypeSymbol type)
+        {
+            return type.SpecialType == SpecialType.System_Boolean
+                   || type.SpecialType == SpecialType.System_Byte
+                   || type.SpecialType == SpecialType.System_Char
+                   || type.SpecialType == SpecialType.System_String
+                   || type.SpecialType == SpecialType.System_Int16
+                   || type.SpecialType == SpecialType.System_Int32
+                   || type.SpecialType == SpecialType.System_Int64
+                   || type.SpecialType == SpecialType.System_Single
+                   || type.SpecialType == SpecialType.System_DateTime
+                   || type.SpecialType == SpecialType.System_Double
+                   || type.SpecialType == SpecialType.System_Decimal
+                   || type.SpecialType == SpecialType.System_SByte
+                   || type.SpecialType == SpecialType.System_UInt16
+                   || type.SpecialType == SpecialType.System_UInt32
+                   || type.SpecialType == SpecialType.System_UInt64;
         }
 
 

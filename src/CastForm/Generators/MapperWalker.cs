@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CastForm.Generators.Factories;
 using CastForm.Generators.Rules;
 using Microsoft.CodeAnalysis;

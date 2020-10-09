@@ -1,11 +1,10 @@
-﻿using System.Text;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 
 namespace CastForm.Generators.Rules
 {
-    internal class ForWithSameTypeRule : IRule
+    internal class ForEqualPrimitiveTypeRule : IRule
     {
-        public ForWithSameTypeRule(IPropertySymbol destiny, IPropertySymbol source)
+        public ForEqualPrimitiveTypeRule(IPropertySymbol destiny, IPropertySymbol source)
         {
             Source = source;
             Destiny = destiny;

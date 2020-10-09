@@ -131,7 +131,7 @@ namespace CastForm.Generators
                     {
                         if (SymbolEqualityComparer.Default.Equals(property.Type, sourceProperty.Type))
                         {
-                            ExecuteRule(new ForWithSameTypeRule(property, sourceProperty), mapperBuilder);
+                            ExecuteRule(new ForEqualPrimitiveTypeRule(property, sourceProperty), mapperBuilder);
                         }
                     }    
                 }
