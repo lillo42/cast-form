@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CastForm.Generators.Factories;
 using CastForm.Generators.Rules;
 using Microsoft.CodeAnalysis;
@@ -26,7 +27,7 @@ namespace CastForm.Generators
                 case GenericNameSyntax genericNameSyntax:
                 {
                     var generic = genericNameSyntax.TypeArgumentList;
-                    var mapper = new MapperSyntax(generic.Arguments[0], generic.Arguments[1]);
+                    var mapper = new MapperSyntax(ResolveTypeSyntax(generic.Arguments[0]), ResolveTypeSyntax(generic.Arguments[1]));
                     Mappers.Add(mapper);
                     mapper.Rules.AddRange(_rules);
                     _rules.Clear();
@@ -43,6 +44,21 @@ namespace CastForm.Generators
             }
 
             base.VisitInvocationExpression(node);
+
+            static TypeSyntax ResolveTypeSyntax(TypeSyntax syntax)
+            {
+                while (true)
+                {
+                    switch (syntax)
+                    {
+                        case QualifiedNameSyntax qualified:
+                            syntax = qualified.Right;
+                            continue;
+                        default:
+                            return syntax;
+                    }
+                }
+            }
         }
     }
 }

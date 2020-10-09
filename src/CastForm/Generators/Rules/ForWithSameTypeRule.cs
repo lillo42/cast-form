@@ -1,8 +1,7 @@
 ﻿using System.Text;
-using CastForm.Generators.Rules;
 using Microsoft.CodeAnalysis;
 
-namespace CastForm.Generators
+namespace CastForm.Generators.Rules
 {
     internal class ForWithSameTypeRule : IRule
     {
@@ -15,9 +14,13 @@ namespace CastForm.Generators
         public IPropertySymbol Source { get; }
         public IPropertySymbol Destiny { get; }
         
-        public void Apply(StringBuilder classBuilder)
+        public void Apply(MapperBuilder builder)
         {
-            classBuilder.AppendLine($"destiny.{Destiny.Name} = source.{Source.Name};");
+            builder.AppendWithTab("destiny.")
+                .Append(Destiny.Name)
+                .Append(" = source.")
+                .Append(Source.Name)
+                .AppendLine(";");
         }
     }
 }

@@ -44,8 +44,8 @@ namespace CastForm.Generators.Factories
                 if (lambda.Body is MemberAccessExpressionSyntax member)
                 {
                     return (type.GetMembers()
-                            .First(x => x is IPropertySymbol 
-                                        && x.Name == member.Name.ToFullString()) as IPropertySymbol)!;
+                        .First(x => x is IPropertySymbol 
+                                    && x.Name == member.Name.ToFullString()) as IPropertySymbol)!;
                 }
 
             }

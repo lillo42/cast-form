@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 
 namespace CastForm.Generators.Rules
 {
@@ -11,6 +10,6 @@ namespace CastForm.Generators.Rules
         }
 
         public IPropertySymbol Destiny { get; }
-        public void Apply(StringBuilder classBuilder) { }
+        public void Apply(MapperBuilder builder) { }
     }
 }

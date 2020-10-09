@@ -81,55 +81,40 @@ namespace CastForm.Generators
                 }
             }
 
+            var adhoc = new AdhocWorkspace();
             var source = mapperSyntax.From;
             var sourceName = GetSimpleNameSyntax(source);
             var sourceModel = compilation.GetSemanticModel(source.SyntaxTree);
             var sourceSymbol = (SymbolFinder
-                .FindSymbolAtPositionAsync(sourceModel, sourceName.SpanStart, new AdhocWorkspace())
+                .FindSymbolAtPositionAsync(sourceModel, sourceName.SpanStart, adhoc)
                 .GetAwaiter().GetResult() as INamedTypeSymbol)!;
 
             var destiny = mapperSyntax.To;
             var destinyName = GetSimpleNameSyntax(destiny);
             var destinyModel = compilation.GetSemanticModel(destiny.SyntaxTree);
             var destinySymbol = (SymbolFinder
-                .FindSymbolAtPositionAsync(destinyModel, destinyName.SpanStart, new AdhocWorkspace())
+                .FindSymbolAtPositionAsync(destinyModel, destinyName.SpanStart, adhoc)
                 .GetAwaiter().GetResult() as INamedTypeSymbol)!;
 
-            var sb = new StringBuilder()
-                .AppendLine($"using {sourceSymbol.ContainingNamespace.ToDisplayString()};");
-
-            if (destinySymbol.ContainingNamespace.ToDisplayString() != sourceSymbol.ContainingNamespace.ToDisplayString())
-            {
-                sb.AppendLine($"using {destinySymbol.ContainingNamespace.ToDisplayString()};");
-            }
-
-            sb
-                .AppendLine($"namespace {mapperSymbol.ContainingNamespace.ToDisplayString()}")
-                .AppendLine( "{")
-                .AppendLine($"    public class {source}To{destiny}Mapper : IMapper<{source}, {destiny}>")
-                .AppendLine( "    {")
-                .AppendLine($"        public {destiny} Map({source} source)")
-                .AppendLine( "        {")
-                .AppendLine($"            var destiny = new {destiny}();");
-
+            var builder = new MapperBuilder(source, destiny);
+            
+            builder
+                .AddUsing(sourceSymbol.ContainingNamespace.ToDisplayString())
+                .AddUsing(destinySymbol.ContainingNamespace.ToDisplayString());
+            
             var destinyProperties = destinySymbol.GetMembers().Where(x => x is IPropertySymbol).Cast<IPropertySymbol>();
             var sourceProperties = sourceSymbol.GetMembers().Where(x => x is IPropertySymbol).Cast<IPropertySymbol>().ToList();
 
-            ProcessRule(destinyProperties, sourceProperties, mapperSyntax.Rules, sb);
-
-            sb
-                .AppendLine( "            return destiny;")
-                .AppendLine( "        }")
-                .AppendLine( "    }")
-                .AppendLine( "}");
-            return sb.ToString();
+            ProcessRule(destinyProperties, sourceProperties, mapperSyntax.Rules, builder);
+            
+            return builder.Build();
         }
 
 
         private static void ProcessRule(IEnumerable<IPropertySymbol> destinyProperties, 
             IReadOnlyCollection<IPropertySymbol> sourceProperties, 
             IReadOnlyCollection<IRule> rules, 
-            StringBuilder sb)
+            MapperBuilder mapperBuilder)
         {
             foreach (var property in destinyProperties)
             {
@@ -137,28 +122,24 @@ namespace CastForm.Generators
                 
                 if (rule != null)
                 {
-                    ExecuteRule(rule, sb);
+                    ExecuteRule(rule, mapperBuilder);
                 }
-
-                var sourceProperty = sourceProperties.FirstOrDefault(x => x.Name == property.Name);
-                if (sourceProperty != null)
+                else
                 {
-                    if (SymbolEqualityComparer.Default.Equals(property.Type, sourceProperty.Type))
+                    var sourceProperty = sourceProperties.FirstOrDefault(x => x.Name == property.Name);
+                    if (sourceProperty != null)
                     {
-                        ExecuteRule(new ForWithSameTypeRule(property, sourceProperty), sb);
-                    }
+                        if (SymbolEqualityComparer.Default.Equals(property.Type, sourceProperty.Type))
+                        {
+                            ExecuteRule(new ForWithSameTypeRule(property, sourceProperty), mapperBuilder);
+                        }
+                    }    
                 }
             }
 
-            static void ExecuteRule(IRule rule, StringBuilder sb)
+            static void ExecuteRule(IRule rule, MapperBuilder mapperBuilder)
             {
-                if (rule is IgnorePropertyRule)
-                {
-                    return;
-                }
-                
-                sb.Append("            ");
-                rule.Apply(sb);
+                rule.Apply(mapperBuilder);
             }
         }
     }
