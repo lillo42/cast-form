@@ -33,7 +33,7 @@ namespace CastForm.Generators.Factories
                     return new ForEqualPrimitiveTypeRule(destinyProperty, sourceProperty);
                 }
                 
-                if (IsPrimitiveType(sourceProperty.Type) && IsPrimitiveType(destinyProperty.Type))
+                if (IsPrimitiveType(sourceProperty) && IsPrimitiveType(destinyProperty))
                 {
                     return new ForDifferentPrimitiveTypeRule(destinyProperty, sourceProperty);
                 }
@@ -63,8 +63,10 @@ namespace CastForm.Generators.Factories
             throw new Exception();
         }
 
-        private static bool IsPrimitiveType(ITypeSymbol type)
+        private static bool IsPrimitiveType(IPropertySymbol property)
         {
+            var type = property.Type;
+            
             return type.SpecialType == SpecialType.System_Boolean
                    || type.SpecialType == SpecialType.System_Byte
                    || type.SpecialType == SpecialType.System_Char

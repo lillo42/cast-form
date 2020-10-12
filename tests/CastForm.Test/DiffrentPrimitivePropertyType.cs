@@ -75,10 +75,9 @@ namespace CastForm.Mappers
             var code = $@"
 using System;
 using System.Linq.Expressions;
-using Oi;
 using CastForm;
 
-namespace Ola
+namespace Oi
 {{
     public class Test : MapperClass
     {{
@@ -88,10 +87,7 @@ namespace Ola
                 .For(x => x.Value, x => x.Id);
         }}
     }}
-}}
 
-namespace Oi
-{{
     public class Foo
     {{
         public {source} Id {{ get; set; }}
@@ -101,7 +97,6 @@ namespace Oi
     {{
         public {destiny} Value {{ get; set; }}
     }}
-
 }}
 ";
 

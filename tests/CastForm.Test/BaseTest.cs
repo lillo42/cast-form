@@ -1,9 +1,11 @@
 ﻿using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using CastForm.Generators;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.Extensions.DependencyModel;
 
 namespace CastForm.Test
 {
@@ -13,10 +15,17 @@ namespace CastForm.Test
         {
             var node = CSharpSyntaxTree.ParseText(code);
             var mapperClass = CSharpSyntaxTree.ParseText(await File.ReadAllTextAsync("../../../../../src/CastForm/MapperClass.cs"));
-
-            var mapper = new MapperGenerator();
-            var compilation = CSharpCompilation.Create("CastForm.Test.Generated", new[] {node, mapperClass});
             
+            var assemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location);
+            var compilation = CSharpCompilation.Create("CastForm.Test.Generated")
+                .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
+                .AddReferences(DependencyContext.Default.CompileLibraries
+                    .SelectMany(cl => cl.ResolveReferencePaths())
+                    .Select(asm => MetadataReference.CreateFromFile(asm)))
+                .AddSyntaxTrees(mapperClass)
+                .AddSyntaxTrees(node);
+            
+            var mapper = new MapperGenerator();
             var driver = new CSharpGeneratorDriver(
                 new CSharpParseOptions(),
                 ImmutableArray.Create<ISourceGenerator>(mapper),

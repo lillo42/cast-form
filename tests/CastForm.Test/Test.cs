@@ -1,4 +1,6 @@
-﻿namespace CastForm.Test
+﻿using System;
+
+namespace CastForm.Test
 {
     public class Test : MapperClass
     {
@@ -19,4 +21,19 @@
     {
         public int Value { get; set; }
     }
+
+}
+
+namespace Oi
+{
+    public class Foo
+    {
+        public bool Id { get; set; }
+    }
+
+    public class Bar
+    {
+        public DateTime Value { get; set; }
+    }
+
 }

@@ -17,12 +17,12 @@ namespace CastForm.Generators.Rules
         public void Apply(MapperBuilder builder)
         {
             builder.AppendWithTab("destiny.").Append(Destiny.Name).Append(" = Convert.To")
-                .Append(Map(Destiny.Type.SpecialType))
+                .Append(Map(Destiny.Type))
                 .Append("(source.").Append(Source.Name).AppendLine(");");
 
-            static string Map(SpecialType type)
+            static string Map(ITypeSymbol type)
             {
-                return type switch
+                return type.SpecialType switch
                 {
                     SpecialType.System_Boolean => "Boolean",
                     SpecialType.System_Char => "Char",
