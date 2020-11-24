@@ -2,13 +2,14 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CastForm.Generators.Rules;
+using CastForm.Generators.Rules.For;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace CastForm.Generators.Factories
 {
-    internal class RuleSyntaxFactory
+    internal static class RuleSyntaxFactory
     {
         public static async Task<IRule> CreateAsync(Compilation compilation,
             MemberAccessExpressionSyntax memberAccessExpressionSyntax,
@@ -37,8 +38,13 @@ namespace CastForm.Generators.Factories
                 {
                     return new ForDifferentPrimitiveTypeRule(destinyProperty, sourceProperty);
                 }
+                
+                if (IsString(sourceProperty) && IsSpecialType(destinyProperty))
+                {
+                    return new ForDifferentPrimitiveTypeRule(destinyProperty, sourceProperty);
+                }
             }
-
+            
             if (method.Name == Ignore)
             {
                 return new IgnorePropertyRule(destinyProperty);
@@ -57,7 +63,6 @@ namespace CastForm.Generators.Factories
                         .First(x => x is IPropertySymbol 
                                     && x.Name == member.Name.ToFullString()) as IPropertySymbol)!;
                 }
-
             }
 
             throw new Exception();
@@ -84,6 +89,18 @@ namespace CastForm.Generators.Factories
                    || type.SpecialType == SpecialType.System_UInt64;
         }
 
+        private static bool IsSpecialType(IPropertySymbol property)
+        {
+            return property.Type.IsValueType
+                   && (property.Type.Name == nameof(Guid) || property.Type.Name == nameof(TimeSpan));
+        }
+        
+        private static bool IsString(IPropertySymbol property)
+        {
+            return property.Type.IsValueType 
+                   && property.Type.SpecialType ==  SpecialType.System_String;
+        }
+        
 
         private const string For = "For";
         private const string Ignore = "Ignore";

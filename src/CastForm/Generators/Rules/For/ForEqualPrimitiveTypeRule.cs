@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace CastForm.Generators.Rules
+namespace CastForm.Generators.Rules.For
 {
     internal class ForEqualPrimitiveTypeRule : IRule
     {

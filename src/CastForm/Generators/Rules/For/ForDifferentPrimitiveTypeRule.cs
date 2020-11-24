@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.CodeAnalysis;
 
-namespace CastForm.Generators.Rules
+namespace CastForm.Generators.Rules.For
 {
     internal class ForDifferentPrimitiveTypeRule : IRule
     {
@@ -19,7 +19,7 @@ namespace CastForm.Generators.Rules
             builder.AppendWithTab("destiny.").Append(Destiny.Name).Append(" = Convert.To")
                 .Append(Map(Destiny.Type))
                 .Append("(source.").Append(Source.Name).AppendLine(");");
-
+            
             static string Map(ITypeSymbol type)
             {
                 return type.SpecialType switch

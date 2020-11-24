@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -116,6 +118,63 @@ namespace CastForm.Mappers
         {{
             var destiny = new Bar();
             destiny.Value = Convert.To{MapToConvert(destiny)}(source.Id);
+            return destiny;
+        }}
+    }}
+}}
+");
+        }
+        
+        [Theory]
+        [InlineData("string", nameof(Guid))]
+        [InlineData("string", nameof(TimeSpan))]
+        public async Task Should_Map_When_PropertyTypeIsGuidOrTimeSpan(string source, string destiny)
+
+        {
+            var code = $@"
+using System;
+using System.Linq.Expressions;
+using CastForm;
+
+namespace Oi
+{{
+    public class Test : MapperClass
+    {{
+        public Test()
+        {{
+            CreateMapper<Oi.Foo, Bar>()
+                .For(x => x.Value, x => x.Id);
+        }}
+    }}
+
+    public class Foo
+    {{
+        public {source} Id {{ get; set; }}
+    }}
+
+    public class Bar
+    {{
+        public {destiny} Value {{ get; set; }}
+    }}
+}}
+";
+
+            var (generated, diagnostics) = await GenerateMapperAsync(code);
+
+            diagnostics.Should().BeEmpty();
+
+            generated.SyntaxTrees.Should().HaveCount(3);
+            generated.SyntaxTrees.ToList()[2].ToString().Should().Be(
+                $@"using Oi;
+
+namespace CastForm.Mappers
+{{
+    public class FooToBarMapper : IMapper<Foo, Bar>
+    {{
+        public Bar Map(Foo source)
+        {{
+            var destiny = new Bar();
+            destiny.Value = {destiny}.Parse(source.Id);
             return destiny;
         }}
     }}

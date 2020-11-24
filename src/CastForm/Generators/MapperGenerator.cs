@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using CastForm.Generators.Rules;
+using CastForm.Generators.Rules.For;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

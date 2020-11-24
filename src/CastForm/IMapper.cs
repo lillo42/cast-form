@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
 
 namespace CastForm
 {
@@ -14,7 +14,8 @@ namespace CastForm
         /// <typeparam name="TDestiny">Destination type to create</typeparam>
         /// <param name="source">Source object to map</param>
         /// <returns>Mapped object</returns>
-        TDestiny Map<TSource, TDestiny>(TSource source);
+        TDestiny Map<TSource, TDestiny>(TSource source)
+            where TSource: notnull;
 
         /// <summary>
         /// Execute a mapping from source to destiny
@@ -45,10 +46,17 @@ namespace CastForm
     /// <typeparam name="TSource"></typeparam>
     /// <typeparam name="TDestiny"></typeparam>
     public interface IMap<TSource, TDestiny> : IMap
+        where TSource: notnull
     {
-        [return: MaybeNull]
         object IMap.Map(object source)
-            => Map((TSource)source);
+        {
+            if (source is TSource cast)
+            {
+                return Map(cast)!;
+            }
+
+            throw new InvalidCastException($"Error to cast {typeof(TSource).FullName} to {typeof(TDestiny).FullName}");
+        } 
 
         /// <summary>
         /// Execute a mapping from source to destiny
