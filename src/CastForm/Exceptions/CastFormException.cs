@@ -4,45 +4,23 @@ using System.Runtime.Serialization;
 namespace CastForm.Exceptions
 {
     /// <summary>
-    /// Exception base for all exception in CastForm
+    /// The base <see cref="Exception"/> class.
     /// </summary>
-    public class CastFormException : Exception
+    public abstract class CastFormException : Exception
     {
-        /// <summary>
-        /// Initialize a new instance of <see cref="CastFormException"/>
-        /// </summary>
-        public CastFormException()
-        {
-            
-        }
-
-        /// <summary>
-        /// Initialize a new instance of <see cref="CastFormException"/>
-        /// </summary>
-        /// <param name="message">The message that describe the error</param>
-        public CastFormException(string message) 
-            : base(message)
+        protected CastFormException()
         {
         }
 
-        /// <summary>
-        /// Initialize a new instance of <see cref="CastFormException"/>
-        /// </summary>
-        /// <param name="message">The message that describe the error</param>
-        /// <param name="innerException">The exception that is cause orf the current error, or null reference if no inner Exception is specified
-        /// </param>
-        public CastFormException(string message, Exception innerException) 
-            : base(message, innerException)
+        protected CastFormException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
 
-        /// <summary>
-        /// Initialize a new instance of <see cref="CastFormException"/>
-        /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
-        protected CastFormException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
+        protected CastFormException(string? message) : base(message)
+        {
+        }
+
+        protected CastFormException(string? message, Exception? innerException) : base(message, innerException)
         {
         }
     }
