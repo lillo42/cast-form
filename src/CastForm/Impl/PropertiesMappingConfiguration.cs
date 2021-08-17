@@ -11,7 +11,7 @@ namespace CastForm.Impl
     /// <typeparam name="TSource">The source type.</typeparam>
     public class PropertiesMappingConfiguration<TDestiny, TSource> : IPropertiesMappingConfiguration<TDestiny, TSource>
     {
-        private readonly Dictionary<Expression<Func<TDestiny, object>>, IPropertyMappingConfigurationAction<TDestiny, TSource>> _propertyActions = new();
+        private readonly Dictionary<Expression<Func<TDestiny, object>>, IPropertyMappingConfigurationAction<TDestiny, TSource>> _propertyActions = new Dictionary<Expression<Func<TDestiny, object>>, IPropertyMappingConfigurationAction<TDestiny, TSource>>();
         
         /// <inheritdoc />
         public IPropertyMappingConfigurationAction<TDestiny, TSource> Map(Expression<Func<TDestiny, object>> source) 

@@ -9,7 +9,7 @@ namespace CastForm
     /// </summary>
     public abstract class MapConfiguration
     {
-        private readonly Dictionary<Type, IMappingConfiguration> _mapping = new();
+        private readonly Dictionary<Type, IMappingConfiguration> _mapping = new Dictionary<Type, IMappingConfiguration>();
         
         /// <summary>
         /// Create map for <typeparamref name="T"/>.

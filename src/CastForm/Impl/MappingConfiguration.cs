@@ -10,7 +10,7 @@ namespace CastForm.Impl
     /// <typeparam name="TDestiny"></typeparam>
     public class MappingConfiguration<TDestiny> : IMappingConfiguration<TDestiny>
     {
-        private readonly Dictionary<Type, IPropertiesMappingConfiguration> _configurations = new();
+        private readonly Dictionary<Type, IPropertiesMappingConfiguration> _configurations = new Dictionary<Type, IPropertiesMappingConfiguration>();
         
         /// <inheritdoc />
         public IMappingConfiguration<TDestiny> From<TSource>()
